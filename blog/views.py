@@ -45,4 +45,4 @@ class CategoryViewSet(ViewSet):
     def retrieve(self, request, pk):
         obj = get_object_or_404(Category.objects.prefetch_related('posts'), id=pk)
         serializer = CategoryDetailSerializer(obj,context={'request':request})
-        return Response(serializer.data)
+        return Response(serializer.data)    

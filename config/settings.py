@@ -46,8 +46,9 @@ INSTALLED_APPS = [
     'djoser',
     'django_ckeditor_5',
 
-    'core',
-    'blog',
+    'core.apps.CoreConfig',
+    'blog.apps.BlogConfig',
+    'users.apps.UsersConfig',
 
 ]
 
@@ -134,7 +135,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'core.CustomUserModel'
+AUTH_USER_MODEL = 'users.User'
 
 #static files conf
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)

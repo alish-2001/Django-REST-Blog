@@ -19,4 +19,4 @@ class BlogPostCommentAdmin(admin.ModelAdmin):
 
 @admin.register(Like)
 class BlogPostLike(admin.ModelAdmin):
-    list_display=['id', 'post', 'user','liked_at']
+    list_display=['id', 'post', 'user',]

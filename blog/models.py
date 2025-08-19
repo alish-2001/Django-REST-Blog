@@ -5,8 +5,17 @@ from django.utils.text import slugify
 
 # Create your models here.
 
+class BaseModel(models.Model):
 
-class Category(models.Model):
+    created_at = models.DateTimeField(db_index=True, auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+
+class Category(BaseModel):
 
     name = models.CharField(max_length=200,null=True,blank=True)
     description = models.CharField(max_length=500,null=True,blank=True)
@@ -14,8 +23,8 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
-class Post(models.Model):
+    
+class Post(BaseModel):
 
     POST_STATUS_CHOICES = [
         ('drf','Draft'),
@@ -30,8 +39,6 @@ class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,related_name='posts',verbose_name='author')
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,related_name='posts',null=True,blank=True)
     status = models.CharField(max_length=5,choices=POST_STATUS_CHOICES,default='drf')
-    created_at = models.DateTimeField(auto_now_add=True)
-    edit_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -42,7 +49,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
 
-class Comment(models.Model):
+class Comment(BaseModel):
 
     COMMENT_STATUS_CHOICES = [
         ('w','Waiting'),
@@ -60,11 +67,10 @@ class Comment(models.Model):
         return self.title
 
 
-class Like(models.Model):
+class Like(BaseModel):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='posts_likes')
     post=  models.ForeignKey(Post,on_delete=models.CASCADE,related_name='likes')
-    liked_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [

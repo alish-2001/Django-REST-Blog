@@ -16,7 +16,6 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-
 class Category(BaseModel):
 
     name = models.CharField(max_length=200,null=True,blank=True)
@@ -24,7 +23,6 @@ class Category(BaseModel):
     
     def __str__(self):
         return self.name
-
     
 class Post(BaseModel):
 
@@ -50,8 +48,9 @@ class Post(BaseModel):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
-
 class Comment(BaseModel):
+
+    #TD: no hardcoding for comment variables
 
     COMMENT_STATUS_CHOICES = [
         ('w','Waiting'),
@@ -68,7 +67,6 @@ class Comment(BaseModel):
     def __str__(self):
         return self.title
 
-
 class Like(BaseModel):
 
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts_likes')
@@ -80,3 +78,4 @@ class Like(BaseModel):
                 fields=['user','post'], name='unique_like_for_every_user'
             )
         ]
+

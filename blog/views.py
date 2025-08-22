@@ -1,14 +1,14 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView,RetrieveAPIView,DestroyAPIView
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework import status
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 
-from .models import Post,Comment,Category
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 from .services import category_create, post_create,comment_create,post_update
+from .selectors import get_post_queryset,get_post_detail,get_post_comment_queryset,get_category_queryset
 
 #Viewsets
 # class PostViewSet(ModelViewSet):
@@ -53,10 +53,7 @@ from .services import category_create, post_create,comment_create,post_update
 class PostListView(ListCreateAPIView):
 
     def get_queryset(self):
-
-        qs = Post.objects.filter(status='pub').select_related('category','user').annotate(
-            likes_number=Count('likes'),comments_numbr=Count('comments')).order_by('-created_at')
-        return qs
+        return get_post_queryset()
     
     def get_permissions(self):  
         if self.request.method == "POST":
@@ -81,11 +78,9 @@ class PostListView(ListCreateAPIView):
 class PostDetailView(RetrieveAPIView):
 
     serializer_class = PostOutputSerializer
-
+    
     def get_queryset(self):
-        qs = Post.objects.filter(status='pub').select_related('category','user').annotate(
-            likes_number=Count('likes'),comments_numbr=Count('comments'))
-        return qs
+        return get_post_queryset()
 
 class PostDeleteView(DestroyAPIView):
 
@@ -93,7 +88,7 @@ class PostDeleteView(DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Post.objects.filter(status='pub').select_related('category','user').annotate(likes_number=Count('likes'))
+        return get_post_queryset()
     
     def destroy(self, request, *args, **kwargs):
         
@@ -108,13 +103,12 @@ class PostDeleteView(DestroyAPIView):
 class PostUpdateView(APIView):
 
     def get_object(self):
-        return get_object_or_404(Post.objects.select_related('category','user'),pk=self.kwargs['pk'])
+        return get_post_detail(pk=self.kwargs['pk'])
     
     def put(self, request, pk):
         post = self.get_object()
         serializer = PostInputSerializer(post, data=request.data)
         serializer.is_valid(raise_exception=True)
-
         post = post_update(post=post, data=serializer.validated_data, user=request.user)
         output = PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
@@ -133,13 +127,13 @@ class PostCommentView(APIView):
 
     def get(self, request, pk):
         
-        comments = Comment.objects.filter(post=pk, status='a').select_related('post', 'user')
+        comments = get_post_comment_queryset(pk=pk) 
         serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
         return Response(serializer.data)
 
     def post(self,request,pk):
     
-        post = get_object_or_404(Post, pk=pk)
+        post = get_post_detail(pk=pk)
         serializer = CommentInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
@@ -148,9 +142,7 @@ class PostCommentView(APIView):
 class CategoryView(ListCreateAPIView):
 
     def get_queryset(self):
-
-        qs = Category.objects.annotate(posts_number=Count('posts')).all()
-        return qs
+        return get_category_queryset()
     
     def get_permissions(self):  
         if self.request.method == "POST":
@@ -171,5 +163,3 @@ class CategoryView(ListCreateAPIView):
         category = category_create(data=serializer.validated_data, user=request.user)
         output = CategoryInputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
-
-

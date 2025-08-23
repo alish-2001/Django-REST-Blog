@@ -11,45 +11,6 @@ from .services import category_create, post_create,comment_create,post_update
 from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset
 from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
 
-#Viewsets
-# class PostViewSet(ModelViewSet):
-
-#     serializer_class = PostSerializer
-
-#     def get_queryset(self):
-#         queryset = Post.objects.filter(status='pub').select_related('category','user').prefetch_related('likes').all()
-#         return queryset
-    
-#     def get_serializer_context(self):
-
-#         user = self.request.user.id
-        
-#         return {'user':user,}
-    
-# class CommentViewSet(ModelViewSet): 
-
-#     serializer_class = CommentSerializer
-
-#     def get_queryset(self):
-#         post_id = self.kwargs['post_pk']
-#         qs = Comment.objects.filter(post_id=post_id, status='a').select_related('user','post').all()
-#         return qs
-    
-#     def get_serializer_context(self):
-#         return {'post_pk': self.kwargs['post_pk'], 'user_id': self.request.user.id}
-
-# class CategoryViewSet(ViewSet):
-
-#     def list(self, request):
-#         queryset = Category.objects.annotate(category_posts_count=Count('posts')).all()
-#         serializer = CategorySerializer(queryset, many=True)
-#         return Response(serializer.data)
-
-#     def retrieve(self, request, pk):
-#         obj = get_object_or_404(Category.objects.prefetch_related('posts'), id=pk)
-#         serializer = CategoryDetailSerializer(obj,context={'request':request})
-#         return Response(serializer.data)    
-
 
 class PostDetailView(RetrieveAPIView):
 
@@ -165,3 +126,42 @@ class PostUpdateView(APIView):
         output = PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
+
+#Viewsets
+# class PostViewSet(ModelViewSet):
+
+#     serializer_class = PostSerializer
+
+#     def get_queryset(self):
+#         queryset = Post.objects.filter(status='pub').select_related('category','user').prefetch_related('likes').all()
+#         return queryset
+    
+#     def get_serializer_context(self):
+
+#         user = self.request.user.id
+        
+#         return {'user':user,}
+    
+# class CommentViewSet(ModelViewSet): 
+
+#     serializer_class = CommentSerializer
+
+#     def get_queryset(self):
+#         post_id = self.kwargs['post_pk']
+#         qs = Comment.objects.filter(post_id=post_id, status='a').select_related('user','post').all()
+#         return qs
+    
+#     def get_serializer_context(self):
+#         return {'post_pk': self.kwargs['post_pk'], 'user_id': self.request.user.id}
+
+# class CategoryViewSet(ViewSet):
+
+#     def list(self, request):
+#         queryset = Category.objects.annotate(category_posts_count=Count('posts')).all()
+#         serializer = CategorySerializer(queryset, many=True)
+#         return Response(serializer.data)
+
+#     def retrieve(self, request, pk):
+#         obj = get_object_or_404(Category.objects.prefetch_related('posts'), id=pk)
+#         serializer = CategoryDetailSerializer(obj,context={'request':request})
+#         return Response(serializer.data)    

@@ -4,7 +4,7 @@ from .models import Like, Post,Comment,Category
 
 @admin.register(Post)
 class BlogPostAdmin(admin.ModelAdmin):
-    list_display=['id', 'title','body',]
+    list_display=['id', 'title','body','user']
 
 
 @admin.register(Category)

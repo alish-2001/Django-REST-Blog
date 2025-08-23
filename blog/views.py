@@ -2,13 +2,14 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView,RetrieveAPIView,DestroyAPIView
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.views import APIView
 
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 from .services import category_create, post_create,comment_create,post_update
-from .selectors import get_post_queryset,get_post_detail,get_post_comment_queryset,get_category_queryset
+from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset
+from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
 
 #Viewsets
 # class PostViewSet(ModelViewSet):
@@ -50,31 +51,6 @@ from .selectors import get_post_queryset,get_post_detail,get_post_comment_querys
 #         return Response(serializer.data)    
 
 
-class PostListView(ListCreateAPIView):
-
-    def get_queryset(self):
-        return get_post_queryset()
-    
-    def get_permissions(self):  
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return [AllowAny()]
-
-    def get_serializer_class(self):
-
-        if self.request.method == "GET":
-            return PostOutputSerializer
-        elif self.request.method == "POST":
-            return PostInputSerializer
-    
-    def create(self, request, *args, **kwargs):
-
-        serializer = PostInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        post = post_create(data=serializer.validated_data, user=request.user)
-        output = PostInputSerializer(post, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
-
 class PostDetailView(RetrieveAPIView):
 
     serializer_class = PostOutputSerializer
@@ -82,28 +58,88 @@ class PostDetailView(RetrieveAPIView):
     def get_queryset(self):
         return get_post_queryset()
 
-class PostDeleteView(DestroyAPIView):
 
-    serializer_class = PostOutputSerializer
-    permission_classes = [IsAuthenticated]
+    #def get for any, put and patch for author
+
+class CategoryView(ListCreateAPIView):
+
+    permission_classes = [IsStaffOrReadOnly]
 
     def get_queryset(self):
-        return get_post_queryset()
-    
-    def destroy(self, request, *args, **kwargs):
-        
-        post = self.get_object()
+        return get_category_queryset()
 
-        if post.user.id == request.user.id :
-            post.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        
-        return Response(status=status.HTTP_403_FORBIDDEN)
-    
-class PostUpdateView(APIView):
+    def get_serializer_class(self):
+
+        if self.request.method == "GET":
+            return CategoryOutputSerializer
+        elif self.request.method == "POST":
+            return CategoryInputSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = CategoryInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = category_create(data=serializer.validated_data, user=request.user)
+        output = CategoryInputSerializer(category, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
+class PostDeleteView(APIView):
+
+    permission_classes = [IsPostAuthorOrReadOnly]
 
     def get_object(self):
-        return get_post_detail(pk=self.kwargs['pk'])
+        return get_post_object(pk=self.kwargs['pk'])
+    
+    def get(self, request, pk):
+        post =self.get_object() 
+        serializer = PostOutputSerializer(post, context={'request':request})
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        post = self.get_object()
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)        
+       
+class PostListView(APIView):
+
+    permission_classes = [IsStaffOrReadOnly]
+
+    def get(self, request):
+        posts = get_post_queryset() 
+        serializer = PostOutputSerializer(posts, context={'request':request}, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = PostInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = post_create(data=serializer.validated_data, user=request.user)
+        output = PostInputSerializer(post, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
+class PostCommentView(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, pk):
+        
+        comments = get_post_comment_queryset(pk=pk) 
+        serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
+        return Response(serializer.data)
+
+    def post(self,request,pk):
+        
+        post = get_post_object(pk=pk)
+        serializer = CommentInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
+        return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
+
+class PostUpdateView(APIView):
+
+    permission_classes = [IsPostAuthorOrReadOnly]
+
+    def get_object(self):
+        return get_post_object(pk=self.kwargs['pk'])
     
     def put(self, request, pk):
         post = self.get_object()
@@ -123,43 +159,3 @@ class PostUpdateView(APIView):
         output = PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
-class PostCommentView(APIView):
-
-    def get(self, request, pk):
-        
-        comments = get_post_comment_queryset(pk=pk) 
-        serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
-        return Response(serializer.data)
-
-    def post(self,request,pk):
-    
-        post = get_post_detail(pk=pk)
-        serializer = CommentInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
-        return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
-
-class CategoryView(ListCreateAPIView):
-
-    def get_queryset(self):
-        return get_category_queryset()
-    
-    def get_permissions(self):  
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return [AllowAny()]
-
-    def get_serializer_class(self):
-
-        if self.request.method == "GET":
-            return CategoryOutputSerializer
-        elif self.request.method == "POST":
-            return CategoryInputSerializer
-
-    def create(self, request, *args, **kwargs):
-
-        serializer = CategoryInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        category = category_create(data=serializer.validated_data, user=request.user)
-        output = CategoryInputSerializer(category, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)

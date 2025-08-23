@@ -136,11 +136,17 @@ class PostCommentView(APIView):
 
 class PostUpdateView(APIView):
 
-    permission_classes = [IsPostAuthorOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
 
     def get_object(self):
         return get_post_object(pk=self.kwargs['pk'])
     
+    
+    def get(self, request, pk):
+        post =self.get_object() 
+        serializer = PostOutputSerializer(post, context={'request':request})
+        return Response(serializer.data)
+
     def put(self, request, pk):
         post = self.get_object()
         serializer = PostInputSerializer(post, data=request.data)

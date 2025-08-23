@@ -17,9 +17,6 @@ class PostDetailView(RetrieveAPIView):
     def get_queryset(self):
         return get_post_queryset()
 
-
-    #def get for any, put and patch for author
-
 class CategoryView(ListCreateAPIView):
 
     permission_classes = [IsStaffOrReadOnly]

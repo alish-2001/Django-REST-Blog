@@ -9,7 +9,6 @@ from django.utils.text import slugify
 User = get_user_model()
 
 class BaseModel(models.Model):
-
     created_at = models.DateTimeField(db_index=True, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -17,7 +16,6 @@ class BaseModel(models.Model):
         abstract = True
 
 class Category(BaseModel):
-
     name = models.CharField(max_length=200,null=True,blank=True)
     description = models.CharField(max_length=500,null=True,blank=True)
     
@@ -68,7 +66,6 @@ class Comment(BaseModel):
         return self.title
 
 class Like(BaseModel):
-
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts_likes')
     post=  models.ForeignKey(Post,on_delete=models.CASCADE,related_name='likes')
 
@@ -78,4 +75,3 @@ class Like(BaseModel):
                 fields=['user','post'], name='unique_like_for_every_user'
             )
         ]
-

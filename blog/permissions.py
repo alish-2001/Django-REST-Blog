@@ -3,7 +3,6 @@ from rest_framework.permissions import BasePermission,SAFE_METHODS
 UNSAFE_METHODS = ['DELETE', 'PUT', 'PATCH']
 
 class IsPostAuthorOrReadOnly(BasePermission):
-
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS : 
             return True
@@ -12,7 +11,6 @@ class IsPostAuthorOrReadOnly(BasePermission):
 
 
 class IsStaffOrReadOnly(BasePermission):
-    
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS : 
             return True

@@ -1,8 +1,6 @@
-from django.db.models import Count
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView,RetrieveAPIView,DestroyAPIView
-from rest_framework.permissions import IsAuthenticated,AllowAny,IsAuthenticatedOrReadOnly
+from rest_framework.generics import ListCreateAPIView,RetrieveAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.views import APIView
 
@@ -97,7 +95,7 @@ class PostCommentView(APIView):
 
 class PostUpdateView(APIView):
 
-    permission_classes = [IsStaffOrReadOnly]
+    permission_classes = [IsPostAuthorOrReadOnly]
 
     def get_object(self):
         return get_post_object(pk=self.kwargs['pk'])

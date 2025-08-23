@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from .models import Post,Comment,Category
+from .models import Category
 
 class PostOutputSerializer(serializers.Serializer):
 

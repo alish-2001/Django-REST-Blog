@@ -44,3 +44,12 @@ def category_create(*, data:dict, user:User):
     obj.user = user
     obj.save()
     return obj
+
+
+def category_update(*, category:Category, data:dict):
+
+    obj = category
+    obj.name = data.get('name', obj.name)
+    obj.description = data.get('description', obj.description)
+    obj.save()
+    return obj

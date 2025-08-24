@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
-from .services import category_create, post_create,comment_create,post_update
+from .services import category_create, category_update, post_create,comment_create,post_update
 from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset,get_category_object
 from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
 
@@ -81,6 +81,26 @@ class CategoryCreateView(APIView):
         output = CategoryOutputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
+class CategoryUpdateView(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, pk):
+        category = get_category_object(pk=pk)
+        serializer = CategoryOutputSerializer(category, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = category_update(category=category,data=serializer.validated_data)
+        output = CategoryOutputSerializer(category, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        category = get_category_object(pk=pk)
+        serializer = CategoryInputSerializer(category, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        category = category_update(category=category,data=serializer.validated_data)
+        output = CategoryOutputSerializer(category, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+    
 class PostDeleteView(APIView):
 
     permission_classes = [IsPostAuthorOrReadOnly]

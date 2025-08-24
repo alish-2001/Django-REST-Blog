@@ -40,7 +40,7 @@ class PostUpdateView(APIView):
     def put(self, request, pk):
 
         post = get_post_object(pk=pk)
-        self.check_object_permissions(request,post)
+        self.check_object_permissions(request, post)
         serializer = PostInputSerializer(post, data=request.data)
         serializer.is_valid(raise_exception=True)
         post = post_update(post=post, data=serializer.validated_data, user=request.user)
@@ -89,7 +89,7 @@ class CategoryUpdateView(APIView):
         category = get_category_object(pk=pk)
         serializer = CategoryOutputSerializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
-        category = category_update(category=category,data=serializer.validated_data)
+        category = category_update(category=category, data=serializer.validated_data)
         output = CategoryOutputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
@@ -97,7 +97,7 @@ class CategoryUpdateView(APIView):
         category = get_category_object(pk=pk)
         serializer = CategoryInputSerializer(category, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        category = category_update(category=category,data=serializer.validated_data)
+        category = category_update(category=category, data=serializer.validated_data)
         output = CategoryOutputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
@@ -116,27 +116,23 @@ class PostDeleteView(APIView):
 
     def delete(self, request, pk):
         post = get_post_object(pk=pk)
-        self.check_object_permissions(request,post)
+        self.check_object_permissions(request, post)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
 
-class PostCommentView(APIView):
-
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class CommentListView(APIView):
 
     def get(self, request, pk):
-        
+
         comments = get_post_comment_queryset(pk=pk) 
         serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
         return Response(serializer.data)
 
-    def post(self,request,pk):
-        
-        post = get_post_object(pk=pk)
-        serializer = CommentInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
-        return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
+
+# class CommentView(APIView):
+
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+
 
 
 

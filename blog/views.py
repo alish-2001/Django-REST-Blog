@@ -57,27 +57,12 @@ class PostUpdateView(APIView):
         output = PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
-class CategoryView(ListCreateAPIView):
+class CategoryListView(APIView):
 
-    permission_classes = [IsStaffOrReadOnly]
-
-    def get_queryset(self):
-        return get_category_queryset()
-
-    def get_serializer_class(self):
-
-        if self.request.method == "GET":
-            return CategoryOutputSerializer
-        elif self.request.method == "POST":
-            return CategoryInputSerializer
-
-    def create(self, request, *args, **kwargs):
-
-        serializer = CategoryInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        category = category_create(data=serializer.validated_data, user=request.user)
-        output = CategoryInputSerializer(category, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
+    def get(self,request):
+        categories = get_category_queryset() 
+        serializer = CategoryOutputSerializer(categories, context={'request':request}, many=True)
+        return Response(serializer.data)
 
 class PostDeleteView(APIView):
 

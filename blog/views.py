@@ -9,6 +9,12 @@ from .services import category_create, post_create,comment_create,post_update
 from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset
 from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
 
+class PostListView(APIView):
+    
+    def get(self, request):
+        posts = get_post_queryset() 
+        serializer = PostOutputSerializer(posts, context={'request':request}, many=True)
+        return Response(serializer.data)
 
 class PostDetailView(RetrieveAPIView):
 
@@ -56,21 +62,6 @@ class PostDeleteView(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
        
-class PostListView(APIView):
-
-    permission_classes = [IsStaffOrReadOnly]
-
-    def get(self, request):
-        posts = get_post_queryset() 
-        serializer = PostOutputSerializer(posts, context={'request':request}, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = PostInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        post = post_create(data=serializer.validated_data, user=request.user)
-        output = PostInputSerializer(post, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
 
 class PostCommentView(APIView):
 

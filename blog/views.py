@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 from .services import category_create, category_update, post_create,comment_create,post_update
-from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset,get_category_object
-from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
+from .selectors import get_comment_object, get_post_queryset,get_post_object,get_comment_queryset,get_category_queryset,get_category_object
+from .permissions import IsPostAuthorOrReadOnly
 
 class PostListView(APIView):
     
@@ -17,7 +17,7 @@ class PostListView(APIView):
 
 class PostCreateView(APIView):
 
-    permission_classes = [IsStaffOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = PostInputSerializer(data=request.data)
@@ -55,6 +55,16 @@ class PostUpdateView(APIView):
         post = post_update(post=post, data=serializer.validated_data, user=request.user)
         output = PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
+
+class PostDeleteView(APIView):
+
+    permission_classes = [IsPostAuthorOrReadOnly]
+
+    def delete(self, request, pk):
+        post = get_post_object(pk=pk)
+        self.check_object_permissions(request, post)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)        
 
 class CategoryListView(APIView):
 
@@ -110,21 +120,11 @@ class CategoryDeleteView(APIView):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
 
-class PostDeleteView(APIView):
-
-    permission_classes = [IsPostAuthorOrReadOnly]
-
-    def delete(self, request, pk):
-        post = get_post_object(pk=pk)
-        self.check_object_permissions(request, post)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)        
-
 class CommentListView(APIView):
 
     def get(self, request, pk):
 
-        comments = get_post_comment_queryset(pk=pk) 
+        comments = get_comment_queryset(pk=pk) 
         serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
         return Response(serializer.data)
 
@@ -140,6 +140,16 @@ class CommentCreateView(APIView):
         comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
         return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
 
+class CommentDeleteView(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, post_pk, comment_pk):
+        comment = get_comment_object(post_pk=post_pk, comment_pk=comment_pk)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)  
+    
+   
 #Viewsets
 # class PostViewSet(ModelViewSet):
 

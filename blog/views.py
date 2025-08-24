@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAdminUser
+from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework import status
 from rest_framework.views import APIView
 
@@ -128,13 +128,17 @@ class CommentListView(APIView):
         serializer = CommentOutputSerializer(comments, context={'request':request}, many=True)
         return Response(serializer.data)
 
+class CommentCreateView(APIView):
 
-# class CommentView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-
-
-
+    def post(self, request, pk):
+        
+        post = get_post_object(pk=pk)
+        serializer = CommentInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
+        return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
 
 #Viewsets
 # class PostViewSet(ModelViewSet):

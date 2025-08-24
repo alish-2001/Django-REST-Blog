@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 from .services import category_create, post_create,comment_create,post_update
-from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset
+from .selectors import get_post_queryset,get_post_object,get_post_comment_queryset,get_category_queryset,get_category_object
 from .permissions import IsPostAuthorOrReadOnly,IsStaffOrReadOnly
 
 class PostListView(APIView):
@@ -30,7 +30,7 @@ class PostCreateView(APIView):
 class PostDetailView(APIView):
 
     def get(self, request, pk):
-        post = get_post_object(self.kwargs['pk'])
+        post = get_post_object(pk=pk)
         serializer = PostOutputSerializer(post, context={'request':request})
         return Response(serializer.data)
 
@@ -64,6 +64,13 @@ class CategoryListView(APIView):
         serializer = CategoryOutputSerializer(categories, context={'request':request}, many=True)
         return Response(serializer.data)
 
+class CategoryDetailView(APIView):
+
+    def get(self, request, pk):
+        category = get_category_object(pk=pk)
+        serializer = CategoryOutputSerializer(category, context={'request':request})
+        return Response(serializer.data)
+    
 class PostDeleteView(APIView):
 
     permission_classes = [IsPostAuthorOrReadOnly]

@@ -14,3 +14,6 @@ def get_post_comment_queryset(pk:int):
 
 def get_category_queryset():
     return Category.objects.annotate(posts_number=Count('posts')).all()
+
+def get_category_object(pk:int):
+    return get_object_or_404(Category.objects.annotate(posts_number=Count('posts')), pk=pk)

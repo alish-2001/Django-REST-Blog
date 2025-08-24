@@ -27,12 +27,12 @@ class PostCreateView(APIView):
         output = PostInputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
-class PostDetailView(RetrieveAPIView):
+class PostDetailView(APIView):
 
-    serializer_class = PostOutputSerializer
-    
-    def get_queryset(self):
-        return get_post_queryset()
+    def get(self, request, pk):
+        post = get_post_object(self.kwargs['pk'])
+        serializer = PostOutputSerializer(post, context={'request':request})
+        return Response(serializer.data)
 
 class CategoryView(ListCreateAPIView):
 
@@ -73,7 +73,6 @@ class PostDeleteView(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
        
-
 class PostCommentView(APIView):
 
     permission_classes = [IsAuthenticatedOrReadOnly]

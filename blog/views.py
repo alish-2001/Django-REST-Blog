@@ -110,24 +110,16 @@ class CategoryDeleteView(APIView):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
 
-
 class PostDeleteView(APIView):
 
     permission_classes = [IsPostAuthorOrReadOnly]
 
-    def get_object(self):
-        return get_post_object(pk=self.kwargs['pk'])
-    
-    def get(self, request, pk):
-        post =self.get_object() 
-        serializer = PostOutputSerializer(post, context={'request':request})
-        return Response(serializer.data)
-
     def delete(self, request, pk):
-        post = self.get_object()
+        post = get_post_object(pk=pk)
+        self.check_object_permissions(request,post)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)        
-       
+
 class PostCommentView(APIView):
 
     permission_classes = [IsAuthenticatedOrReadOnly]

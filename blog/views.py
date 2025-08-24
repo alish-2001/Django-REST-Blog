@@ -1,6 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView,RetrieveAPIView, CreateAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAdminUser
 from rest_framework import status
 from rest_framework.views import APIView
 
@@ -71,6 +70,17 @@ class CategoryDetailView(APIView):
         serializer = CategoryOutputSerializer(category, context={'request':request})
         return Response(serializer.data)
     
+class CategoryCreateView(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        serializer = CategoryInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = category_create(data=serializer.validated_data, user=request.user)
+        output = CategoryOutputSerializer(category, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
 class PostDeleteView(APIView):
 
     permission_classes = [IsPostAuthorOrReadOnly]

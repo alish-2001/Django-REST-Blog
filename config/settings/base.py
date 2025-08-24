@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'djoser',
     'django_ckeditor_5',
 
-    'core.apps.CoreConfig',
     'blog.apps.BlogConfig',
     'users.apps.UsersConfig',
 

@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView,RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveAPIView, CreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.views import APIView
@@ -33,6 +33,29 @@ class PostDetailView(APIView):
         post = get_post_object(self.kwargs['pk'])
         serializer = PostOutputSerializer(post, context={'request':request})
         return Response(serializer.data)
+
+class PostUpdateView(APIView):
+
+    permission_classes = [IsPostAuthorOrReadOnly]
+
+    def put(self, request, pk):
+
+        post = get_post_object(pk=pk)
+        self.check_object_permissions(request,post)
+        serializer = PostInputSerializer(post, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = post_update(post=post, data=serializer.validated_data, user=request.user)
+        output = PostOutputSerializer(post, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        post = get_post_object(pk=pk)
+        self.check_object_permissions(request=request, obj=post)
+        serializer = PostInputSerializer(post, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        post = post_update(post=post, data=serializer.validated_data, user=request.user)
+        output = PostOutputSerializer(post, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
 
 class CategoryView(ListCreateAPIView):
 
@@ -91,36 +114,6 @@ class PostCommentView(APIView):
         comment = comment_create(post=post, data=serializer.validated_data, user=request.user) 
         return Response(CommentOutputSerializer(comment, context={'request':request}).data, status=status.HTTP_201_CREATED)
 
-class PostUpdateView(APIView):
-
-    permission_classes = [IsPostAuthorOrReadOnly]
-
-    def get_object(self):
-        return get_post_object(pk=self.kwargs['pk'])
-    
-    
-    def get(self, request, pk):
-        post =self.get_object() 
-        serializer = PostOutputSerializer(post, context={'request':request})
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        post = self.get_object()
-        serializer = PostInputSerializer(post, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        post = post_update(post=post, data=serializer.validated_data, user=request.user)
-        output = PostOutputSerializer(post, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
-
-    def patch(self, request, pk):
-        post = self.get_object()
-        serializer = PostInputSerializer(post, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-
-        post = post_update(post=post, data=serializer.validated_data, user=request.user)
-
-        output = PostOutputSerializer(post, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
 
 
 #Viewsets

@@ -1,11 +1,12 @@
 from rest_framework_nested import routers
 from rest_framework.urls import path
 
-from .views import CategoryView, PostUpdateView,PostCommentView,PostListView,PostDetailView,PostDeleteView
+from .views import CategoryView, PostUpdateView,PostCommentView,PostListView,PostDetailView,PostDeleteView,PostCreateView
 
 
 urlpatterns=[
-    path('posts/',PostListView.as_view(),name='posts'),
+    path('posts/',PostListView.as_view(), name='posts'),
+    path('posts/create',PostCreateView.as_view(), name='post-create'),
     path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('posts/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
     path('posts/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),

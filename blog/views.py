@@ -16,6 +16,17 @@ class PostListView(APIView):
         serializer = PostOutputSerializer(posts, context={'request':request}, many=True)
         return Response(serializer.data)
 
+class PostCreateView(APIView):
+
+    permission_classes = [IsStaffOrReadOnly]
+
+    def post(self, request):
+        serializer = PostInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = post_create(data=serializer.validated_data, user=request.user)
+        output = PostInputSerializer(post, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
 class PostDetailView(RetrieveAPIView):
 
     serializer_class = PostOutputSerializer

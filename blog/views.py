@@ -100,7 +100,17 @@ class CategoryUpdateView(APIView):
         category = category_update(category=category,data=serializer.validated_data)
         output = CategoryOutputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
-    
+
+class CategoryDeleteView(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, pk):
+        category = get_category_object(pk=pk)
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)        
+
+
 class PostDeleteView(APIView):
 
     permission_classes = [IsPostAuthorOrReadOnly]

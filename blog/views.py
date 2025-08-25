@@ -87,7 +87,7 @@ class CategoryCreateView(APIView):
     def post(self, request):
         serializer = CategoryInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        category = category_create(data=serializer.validated_data, user=request.user)
+        category = category_create(data=serializer.validated_data)
         output = CategoryOutputSerializer(category, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
@@ -97,7 +97,7 @@ class CategoryUpdateView(APIView):
 
     def put(self, request, pk):
         category = get_category_object(pk=pk)
-        serializer = CategoryOutputSerializer(category, data=request.data)
+        serializer = CategoryInputSerializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
         category = category_update(category=category, data=serializer.validated_data)
         output = CategoryOutputSerializer(category, context={"request": request})

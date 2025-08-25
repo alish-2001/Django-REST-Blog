@@ -1,31 +1,16 @@
 from .models import Post, Comment,Category
 from users.models import User
+from django.shortcuts import get_object_or_404
 
 def post_create(*, data:dict, user:User):
 
-    obj = Post(**data,user=user)
-
-    obj.save()
-    return obj
-
-    # obj.category = data.get('category', obj.category)
-    # obj.title = data.get('title', obj.title)
-    # obj.body = data.get('body', obj.body)
-    # obj.cover_image = data.get('cover_image', obj.cover_image)
-    # obj.user = user
-    
+    return Post.objects.create(**data, user=user)
 
 
 def post_update(*, post:Post, data:dict, user:User):
 
-    obj = post
-    obj.category = data.get('category', obj.category)
-    obj.title = data.get('title', obj.title)
-    obj.body = data.get('body', obj.body)
-    obj.cover_image = data.get('cover_image', obj.cover_image)
-    obj.user = user
-    obj.save()
-    return obj
+    Post.objects.filter(pk=post.pk).update(user=user, **data)
+    return Post.objects.get(pk=post.pk)
 
 
 def comment_create(*, post:Post, data:dict, user:User):

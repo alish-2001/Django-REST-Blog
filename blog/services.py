@@ -23,12 +23,8 @@ def category_update(*, category:Category, data:dict):
     Category.objects.filter(pk=category.pk).update(**data)
     return Category.objects.get(pk=category.pk)
 
+
 def comment_create(*, post:Post, data:dict, user:User):
     
-    obj = Comment()
-    obj.post = post
-    obj.title = data.get('title', obj.title)
-    obj.text = data.get('text', obj.text)
-    obj.user = user
-    obj.save()
-    return obj
+
+    return Comment.objects.create(post=post, user=user, **data)

@@ -3,14 +3,17 @@ from users.models import User
 
 def post_create(*, data:dict, user:User):
 
-    obj = Post()
-    obj.category = data.get('category', obj.category)
-    obj.title = data.get('title', obj.title)
-    obj.body = data.get('body', obj.body)
-    obj.cover_image = data.get('cover_image', obj.cover_image)
-    obj.user = user
+    obj = Post(**data,user=user)
+
     obj.save()
     return obj
+
+    # obj.category = data.get('category', obj.category)
+    # obj.title = data.get('title', obj.title)
+    # obj.body = data.get('body', obj.body)
+    # obj.cover_image = data.get('cover_image', obj.cover_image)
+    # obj.user = user
+    
 
 
 def post_update(*, post:Post, data:dict, user:User):

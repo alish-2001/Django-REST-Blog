@@ -18,50 +18,50 @@ class PostCreateServiceTest(TestCase):
         post = post_create(user=self.user, data=self.data)
         self.assertIsInstance(post, Post)
 
-    def test_post_create_service_sets_fields_correctly(self):   
+    def test_service_sets_fields_correctly(self):   
 
         post = post_create(user=self.user, data=self.data)
         self.assertEqual(post.user.username, self.user.username)
         self.assertEqual(post.title, self.data['title'])
         self.assertEqual(post.body, self.data['body'])
 
-    def test_post_create_service_added_new_post_to_db(self):
+    def test_service_added_new_post_to_db(self):
 
         self.assertEqual(Post.objects.count(), 0)
         post = post_create(user=self.user, data=self.data)
         self.assertEqual(Post.objects.count(), 1)
 
-    def test_post_create_service_assigned_user_to_post(self):
+    def test_service_assigned_user_to_post(self):
 
         post = post_create(user=self.user, data=self.data)
         self.assertEqual(post.user, self.user)
 
-    def test_post_create_service_allows_different_users(self):
+    def test_service_allows_different_users(self):
 
         another_user = User.objects.create_user(username='anotheruser', email='anotheruser@anotheruser.com', password='password')   
         post1 = post_create(user=self.user,data=self.data)
         post2 = post_create(user=another_user, data=self.data)
         self.assertNotEqual(post1.user, post2.user)
 
-    def test_post_create_service_returns_same_object_as_db(self):
+    def test_service_returns_same_object_as_db(self):
 
         post_created_by_service = post_create(user=self.user, data=self.data)
         post_from_db = Post.objects.get(pk=post_created_by_service.pk)
         self.assertEqual(post_created_by_service,post_from_db)
 
-    def test_post_create_service_sets_default_value_correctly(self):
+    def test_service_sets_default_value_correctly(self):
 
         post = post_create(user=self.user, data=self.data)
         self.assertEqual(post.status, 'drf')
 
-    def test_post_create_service_allows_same_user_to_create_multiple_posts(self):
+    def test_service_allows_same_user_to_create_multiple_posts(self):
         
         post = post_create(user=self.user, data=self.data)
         post = post_create(user=self.user, data=self.data)
         self.assertEqual(Post.objects.filter(user=self.user).count(), 2)
 
 #To Run: python manage.py test blog.tests.services.test_post_services.PostServiceUpdateTest
-class PostServiceUpdateTest(TestCase):
+class PostUpdateServiceTest(TestCase):
 
     def setUp(self):
         
@@ -89,7 +89,7 @@ class PostServiceUpdateTest(TestCase):
         self.assertEqual(updated_post.status, 'pub')
         self.assertEqual(updated_post.user, self.user)
 
-    def test_post_update_service_returns_same_object_before_after_update(self):
+    def test_service_returns_same_object_before_after_update(self):
         
         post_obj_before_update = self.initial_post
         
@@ -101,7 +101,7 @@ class PostServiceUpdateTest(TestCase):
 
         self.assertEqual(post_obj_before_update, self.initial_post)
    
-    def test_post_update_service_updates_correctly_after_get_refreshed_post_from_db(self):
+    def test_service_updates_correctly_after_get_refreshed_post_from_db(self):
 
         category_for_update = Category.objects.create(name='category for update', description='updated category description')
         data_for_update = {'title':'updated title', 'body':'updated body', 'category':category_for_update, 'status':'pub'}
@@ -114,7 +114,7 @@ class PostServiceUpdateTest(TestCase):
         self.assertEqual(refreshed_post.category, category_for_update)
         self.assertEqual(refreshed_post.status, 'pub')
 
-    def test_post_update_service_not_create_new_post(self):
+    def test_service_does_not_create_new_post(self):
 
         before = Post.objects.count()
 
@@ -124,7 +124,7 @@ class PostServiceUpdateTest(TestCase):
         post_update(data=data_for_update, user=self.initial_post.user, post=self.initial_post)
         self.assertEqual(Post.objects.count(), before)
 
-    def test_post_update_service_only_change_provided_filelds_for_partial_update(self):
+    def test_service_only_change_provided_filelds_for_partial_update(self):
 
         title_before_update = self.data['title']        
         data_for_partial_update = {'body':'ONLY BODY FIELD CHANGED',}

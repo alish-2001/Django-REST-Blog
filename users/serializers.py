@@ -23,3 +23,15 @@ class UserLoginOutputSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=60, read_only=True)
     first_name = serializers.CharField(max_length=150, read_only=True)
     last_name = serializers.CharField(max_length=150, read_only=True)
+
+class UserProfileOutputSerializer(serializers.Serializer):
+
+    username = serializers.CharField(max_length=60, read_only=True)
+    first_name = serializers.CharField(max_length=150, read_only=True)
+    last_name = serializers.CharField(max_length=150, read_only=True)
+    bio = serializers.CharField(max_length=500, read_only=True)
+    gender = serializers.CharField(max_length=10, read_only=True)
+    phone_number = serializers.CharField(max_length=15, read_only=True) 
+    image = serializers.ImageField(use_url=True, read_only=True, max_length=None)
+    birth_date = serializers.DateField(read_only=True)
+    is_verified = serializers.BooleanField(read_only=True)

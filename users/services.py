@@ -24,3 +24,14 @@ def user_create(*, data:dict):
         raise ValidationError(errors.messages)
 
     return user
+
+
+@transaction.atomic
+def token_create(user):
+
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }

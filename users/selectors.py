@@ -6,3 +6,6 @@ User = get_user_model()
 
 def get_user_object(pk:int):
     return get_object_or_404(User, pk=pk)
+
+def get_users_queryset():
+    return User.objects.all()

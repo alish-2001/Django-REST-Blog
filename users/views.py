@@ -2,12 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 
 from .validations import user_authenticate_status
-from .serializers import UserCreateInputSerializer, UserLoginInputSerializer,UserCreateOutputSerializer, UserLoginOutputSerializer, UserProfileOutputSerializer
+from .serializers import UserCreateInputSerializer, UserLoginInputSerializer,UserCreateOutputSerializer, UserLoginOutputSerializer, UserProfileOutputSerializer, UsersListSerializer
 from .services import user_create, token_create
-from .selectors import get_user_object
+from .selectors import get_user_object, get_users_queryset
 
 # Create your views here.
 
@@ -55,3 +55,14 @@ class UserProfileView(APIView):
         user = get_user_object(pk=pk)
         serializer = UserProfileOutputSerializer(user, context={'request':request})
         return Response(serializer.data)
+
+class UserListView(APIView):
+    
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        
+        users= get_users_queryset()
+        serializer = UsersListSerializer(users, many=True, context={'request':request})
+        return Response(serializer.data)
+    

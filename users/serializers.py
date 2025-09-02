@@ -35,3 +35,14 @@ class UserProfileOutputSerializer(serializers.Serializer):
     image = serializers.ImageField(use_url=True, read_only=True, max_length=None)
     birth_date = serializers.DateField(read_only=True)
     is_verified = serializers.BooleanField(read_only=True)
+
+class UsersListSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField(read_only=True)
+    username = serializers.CharField(max_length=60, read_only=True) 
+    is_active = serializers.BooleanField(read_only=True)
+    gender = serializers.CharField(max_length=10, read_only=True)
+    role = serializers.CharField(max_length=10, read_only=True)
+    is_verified = serializers.BooleanField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    

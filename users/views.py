@@ -4,9 +4,10 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .validations import user_authenticate_status
-from .serializers import UserCreateInputSerializer, UserLoginInputSerializer,UserCreateOutputSerializer, UserLoginOutputSerializer, UserProfileOutputSerializer, UsersListSerializer
+from .serializers import UserCreateInputSerializer, UserLoginInputSerializer,UserCreateOutputSerializer, UserLoginOutputSerializer, UserLogoutInputSerializer, UserProfileOutputSerializer, UsersListSerializer
 from .services import user_create, token_create
 from .selectors import get_user_object, get_users_queryset
 
@@ -67,3 +68,20 @@ class UsersListView(APIView):
         serializer = UsersListSerializer(users, many=True, context={'request':request})
         return Response(serializer.data)
 
+class UserLogoutView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = UserLogoutInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            refresh = serializer.validated_data['refresh']
+            token =  RefreshToken(refresh)
+            token.blacklist()
+            return Response({'message':'logged out successfuly'}, status=status.HTTP_205_RESET_CONTENT)
+        
+        except  TokenError as error:
+            return Response({'detail': f"Invalid refresh token for {request.user.username}: {str(error)}"}, status=status.HTTP_400_BAD_REQUEST)
+        

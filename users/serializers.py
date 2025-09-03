@@ -45,4 +45,6 @@ class UsersListSerializer(serializers.Serializer):
     role = serializers.CharField(max_length=10, read_only=True)
     is_verified = serializers.BooleanField(read_only=True)
     is_superuser = serializers.BooleanField(read_only=True)
-    
+
+class UserLogoutInputSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=True, max_length=2000, write_only=True)

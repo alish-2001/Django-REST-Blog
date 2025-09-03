@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .validations import user_authenticate_status
 from .serializers import UserCreateInputSerializer, UserLoginInputSerializer,UserCreateOutputSerializer, UserLoginOutputSerializer, UserProfileOutputSerializer, UsersListSerializer
@@ -50,19 +51,19 @@ class UserProfileView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, pk):
+    def get(self, request):
            
-        user = get_user_object(pk=pk)
+        user = get_user_object(pk=request.user.id)
         serializer = UserProfileOutputSerializer(user, context={'request':request})
         return Response(serializer.data)
 
-class UserListView(APIView):
+class UsersListView(APIView):
     
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        
+
         users= get_users_queryset()
         serializer = UsersListSerializer(users, many=True, context={'request':request})
         return Response(serializer.data)
-    
+

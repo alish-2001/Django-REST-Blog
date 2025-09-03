@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'debug_toolbar',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+    'debug_toolbar',
+
     'djoser',
     'django_ckeditor_5',
 
@@ -134,7 +136,11 @@ REST_FRAMEWORK={
 }
 
 SIMPLE_JWT={
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     'AUTH_HEADER_TYPES' : ("JWT",),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1)
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=2)
 }
  

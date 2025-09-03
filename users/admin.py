@@ -5,5 +5,8 @@ from .models import User
 # Register your models here.
 
 @admin.register(User)
-class UserAdmin(UserAdmin):
-    list_display = ['id','username','first_name']
+class UserAdmin(admin.ModelAdmin):
+
+    model = User
+    list_display = ['id','username','email', 'role', 'is_verified']
+    

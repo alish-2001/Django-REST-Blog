@@ -4,6 +4,9 @@ __pycache__/
 *.pyo
 *.pyd
 *.env
+.env.base
+.env.production
+.env.local
 env/
 venv/
 .venv/

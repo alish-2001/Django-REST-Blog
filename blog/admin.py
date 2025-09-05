@@ -4,6 +4,7 @@ from .models import Like, Post,Comment,Category
 
 @admin.register(Post)
 class BlogPostAdmin(admin.ModelAdmin):
+    model=Post
     list_display=['id', 'title','body','user']
 
 

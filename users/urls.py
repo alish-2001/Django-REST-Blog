@@ -1,7 +1,7 @@
 from rest_framework.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView,TokenVerifyView
 
-from .views import UserCreateView, UserLoginView, UserProfileView, UsersListView, UserLogoutView
+from .views import UserCreateView, UserLoginView, UserProfileView, UsersListView, UserLogoutView, UserVerifyAccount
 
 urlpatterns = [
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('logout/', UserLogoutView.as_view(), name='user-logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token-verify'),
+    path('verify-account/', UserVerifyAccount.as_view(), name='user-verify-account'),
 
 ]

@@ -14,7 +14,7 @@ class UserCreateOutputSerializer(serializers.Serializer):
     is_staff = serializers.BooleanField(read_only=True,)
 
 class UserLoginInputSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, write_only=True, max_length=60)
+    email = serializers.EmailField(required=True, write_only=True, max_length=60,)
     password = serializers.CharField(required=True, write_only=True, max_length=50,)
 
 class UserLoginOutputSerializer(serializers.Serializer):
@@ -48,3 +48,6 @@ class UsersListSerializer(serializers.Serializer):
 
 class UserLogoutInputSerializer(serializers.Serializer):
     refresh = serializers.CharField(required=True, max_length=2000, write_only=True)
+
+class UserVerifyAccountInputSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=5, write_only=True, required=True)

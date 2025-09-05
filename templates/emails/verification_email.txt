@@ -1,0 +1,7 @@
+Hi! This a message from {{site_name}},
+
+Your verification code is: {{code}}
+
+This one-time password will be expired in {{expiry_minutes}} minutes.
+
+If you did not request, ignore this message.

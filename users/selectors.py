@@ -1,11 +1,22 @@
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
+from .models import OTPVerification
 
 User = get_user_model()
 
 def get_user_object(pk:int):
-    return get_object_or_404(User, pk=pk)
+
+    try:
+        return User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        raise ValidationError("User Not Found")
 
 def get_users_queryset():
-    return User.objects.all()
+    return User.objects.all().order_by('-is_active')
+
+def get_latest_user_otp_obj(user):
+    return OTPVerification.objects.filter(user=user).order_by('-created_at').first()
+
+def check_user_existence(email):
+    return User.objects.filter(email=email).exists()

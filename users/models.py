@@ -1,5 +1,5 @@
-from django.db import models, transaction
 from django.utils import timezone
+from django.db import models, transaction
 from django.contrib.auth.models import AbstractUser,BaseUserManager
 
 class BaseModel(models.Model):
@@ -100,7 +100,7 @@ class OTPVerification(BaseModel):
         EMAIL = "email", "Email"
         PHONE = "phone", "Phone"
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otps')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
     code = models.CharField(max_length=5)
     expired_at = models.DateTimeField()
     verification_type = models.CharField(max_length=5, choices=VerificationType, default=VerificationType.EMAIL)

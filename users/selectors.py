@@ -16,7 +16,10 @@ def get_users_queryset():
     return User.objects.all().order_by('-is_active')
 
 def get_latest_user_otp_obj(user):
-    return OTPVerification.objects.filter(user=user).order_by('-created_at').first()
 
+    otp = OTPVerification.objects.filter(user=user).order_by('-created_at').first()
+    if otp is None:
+        raise ValidationError("No Code Found For This User, Request A New Code.")
+    
 def check_user_existence(email):
     return User.objects.filter(email=email).exists()

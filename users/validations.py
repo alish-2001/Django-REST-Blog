@@ -1,131 +1,138 @@
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth import get_user_model, authenticate
+from rest_framework.exceptions import NotFound as DRFNotFound
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError,NotAuthenticated,PermissionDenied
 
-from .selectors import get_latest_user_otp_obj, get_user_object, check_user_existence
+from .selectors import get_latest_user_otp_obj, get_user_object_by_email, get_user_object_by_pk, check_user_existence
 
 User = get_user_model()
 
 def validate_user_create(data:dict):
 
-    email = data.get("email")
-    password = data.get("password")
-    confirm_password = data.get("confirm_password")
+    email = str(data.get("email")).strip()
+    password = str(data.get("password")).strip()
+    confirm_password = str(data.get("confirm_password")).strip()
 
     if not email or not password or not confirm_password:
-        raise ValidationError("All The Fields Are Required")
+        raise DRFValidationError("All The Fields Are Required")
     
     email = BaseUserManager.normalize_email(email=email)
 
     try:
         validate_email(email)
-    except:
-        raise ValidationError("Please enter A Valid Email Address ")
+    except DjangoValidationError:
+        raise DRFValidationError("Please enter A Valid Email Address ")
 
     if  password != confirm_password:
-        raise ValidationError("Passwords Do Not Match")   
+        raise DRFValidationError("Passwords Do Not Match")   
      
     try:
         validate_password(password=password)
-    except Exception as error:
-        raise ValidationError({'errors':list(error.messages)})
+    except DjangoValidationError as error:
+        raise DRFValidationError(str(error))
 
     if check_user_existence(email=email):
-        raise ValidationError("This Email Address Is Registered")
+        raise DRFValidationError("This Email Address Is Registered")
 
-    return None
+    return {'email':email, 'password':password}
 
 def validate_user_authentication(data:dict):
 
-
-    email = (data.get("email"))
-    password = data.get("password")
+    email = str(data.get("email")).strip()
+    password = str(data.get("password")).strip()
     
     if not email or not password:
-        raise ValidationError("Email And Password Are Required")
+        raise DRFValidationError("Email And Password Are Required")
 
-    email = BaseUserManager.normalize_email(email=email.strip())
+    email = BaseUserManager.normalize_email(email=email)
 
     user = authenticate(username=email, password=password)
 
     if not user:
-        raise ValidationError("Invalid Email Or Password.")
+        raise NotAuthenticated("This Account Is Not Registered.")
 
     if not user.is_active:
-        raise ValidationError("This account is disabled.")
+        raise PermissionDenied("This account is disabled.")
     
     if not getattr(user, "is_verified", False):
-        raise ValidationError("This account is not verified.")
+        raise PermissionDenied("This account is not verified.")
     
     return user
 
 def validate_otp_new_authenticated_user(*, user, code:str):
 
-
     if not code or not user:
-        raise ValidationError("Input Code or Other required Data NOT Found")
+        raise DRFValidationError("Input Code or Other required Data NOT Found")
 
     if len(code) >= 6 or not code.isdecimal():
-        raise ValidationError("input Code Is NOT Correct")
+        raise DRFValidationError("input Code Is NOT Correct")
 
     try:
-        user = get_user_object(pk=user.pk)
-    except User.DoesNotExist:
-        raise ("invalid User or Code")
+        user = get_user_object_by_pk(pk=user.pk)
+    except DjangoValidationError:
+        raise DRFValidationError("invalid User or Code")
     
     if  not user.is_authenticated:
-        raise ValidationError("User Is Not Logged In")
+        raise DRFNotFound("User Is Not Logged In")
 
     if user.is_verified:
-        raise ValidationError("Account Is Already Verfied")
+        raise DRFValidationError("Account Is Already Verfied")
 
     try:
         otp_obj = get_latest_user_otp_obj(user=user)
-    except Exception:
-        raise ValidationError("No Code Is Sent For This Account")
+    except DjangoValidationError:
+        raise DRFValidationError("No Code Is Sent For This Account")
 
     if otp_obj.is_expired:
-        raise ValidationError("Code Is Expired. Try Another Time")
+        raise DRFValidationError("Code Is Expired. Try Another Time")
 
     if otp_obj.code != code:
-        raise ValidationError("Input Code Is Not Correct")
+        raise DRFValidationError("Input Code Is Not Correct")
 
     return None
 
-def validate_otp_new_anonymous_user(*, code:str, user_id:int):
+def validate_otp_new_anonymous_user(*, code:str, email):
+
+    if not code or not email:
+        raise DRFValidationError("All the fields are required")
     
-    if not code or not user_id:
-        raise ValidationError("All the fields are required")
+    if len(code) != 5 or not code.isdecimal():
+        raise DRFValidationError('code format is not correct')
     
-    if len(code) >= 6 or not code.isdecimal():
-        raise ValidationError('code format is not correct')
+    code = str(code).strip()
+    email = str(email).strip()
+
+    email = BaseUserManager.normalize_email(email)
 
     try:
-        user_id = int(user_id)
-    except (TypeError, ValueError):
-        raise ValidationError({"user_id":"Invalid User ID"})
+        validate_email(email)
+    except DjangoValidationError:
+        raise DRFValidationError("Please enter A Valid Email Address ")
 
     try:
-        user = get_user_object(pk=user_id)
-    except User.DoesNotExist:
-        raise ("invalid User or Code")
+        user = get_user_object_by_email(email=email)
+    except DRFNotFound:
+        raise DRFNotFound("invalid User or Code")
     
-
     if user.is_verified:
-        raise ValidationError("Account is Already Verified")
-
+        raise DRFValidationError("Account is Already Verified")
 
     try:
         otp_obj = get_latest_user_otp_obj(user=user)
-    except Exception:
-        raise ValidationError("No code found for the given user")
+    except DRFNotFound as e:
+        raise DRFNotFound(str(e))
 
-    if otp_obj.is_expired():
-        raise ValidationError('Code is Expired, Request Another Time')
+
+    if otp_obj.is_expired:
+        raise DRFValidationError('Code is Expired, Request Another Time')
 
     if otp_obj.code != code:
-        raise ValidationError("entered code is not correct")
+        raise DRFValidationError("entered code is not correct")
         
-    return None
+    return user
+
+
+

@@ -25,3 +25,11 @@ def get_latest_user_otp_obj(user):
 
 def check_user_existence(email):
     return User.objects.filter(email=email).exists()
+
+def get_user_object_by_email(email:str):
+
+    try:
+        user = User.objects.get(email=email)
+        return user
+    except User.DoesNotExist:
+        raise DRFNotFound("User Not Found")

@@ -1,12 +1,13 @@
 import random
 from datetime import timedelta
-from django.db import transaction
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.template.loader import render_to_string
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError, NotFound
 
 from .models import OTPVerification
 from .selectors import check_user_existence
@@ -14,66 +15,76 @@ from .validations import validate_user_create
 
 User = get_user_model()
 
-@transaction.atomic
 def user_create(*, data:dict):
 
-    email = data.get("email")
-    password = data.get("password")
+    cleaned_data = validate_user_create(data=data)
+    email = cleaned_data.get("email")
+    password = cleaned_data.get("password")
 
-    validate_user_create(data=data)
-
-    user = User.objects.create_user(email=email, password=password)
+    user = User(email=email, username=email)
+    user.set_password(password)
 
     try:
         user.full_clean()
-    except ValidationError as errors:
-        raise ValidationError(errors.messages)
+    except DjangoValidationError as e:
+        raise DRFValidationError(str(e))
 
     try:
-        otp_create(user)
-    except ValidationError as errors:
-        raise ValidationError(errors.messages)
+        with transaction.atomic():
+            user.save()
+            transaction.on_commit(lambda: otp_create(user=user))
+
+    except  IntegrityError as exc:
+        raise DRFValidationError(str(exc))
+    
+    except DjangoValidationError as e:
+        raise DRFValidationError(e.messages)
+
+    except Exception:
+        raise DRFValidationError('Registration Failed')
     
     return user
 
 def otp_create(user):
 
     if not check_user_existence(user.email):
-        raise ValidationError("User Is NOT Registered")
-    
+        raise NotFound('User Is Not Registered')
+
+    #ToDo: storing codes hashed 
     code = str(random.randint(10000, 99999))
     expired_at = timezone.now() + timedelta(minutes=5)
-    otp_obj = OTPVerification(code=code, user=user, expired_at=expired_at)
 
     with transaction.atomic():
+
+        otp_obj = OTPVerification(code=code, user=user, expired_at=expired_at)
+
         try:
             otp_obj.full_clean()
-            otp_obj.save()
-        except ValidationError as errors:
-            raise ValidationError(errors.messages_dict)
+        except DjangoValidationError as errors:
+            raise DRFValidationError(errors.messages_dict)
         
-        transaction.on_commit(lambda: send_otp_email(user=otp_obj.user, code=otp_obj))
+        try:
+            otp_obj.save()
+        except Exception:
+            raise DRFValidationError('Failded To Create Verification Code')
+
+        transaction.on_commit(lambda: send_otp_email(user=otp_obj.user, otp_obj=otp_obj))
 
     return otp_obj
 
 @transaction.atomic
 def verify_user_by_otp(user):
 
-    try:
-        user = User.objects.get(pk=user.id)
-    except User.DoesNotExist:
-        raise ("User Not Found")
+    if getattr(user, 'is_verified', False):
+        raise DRFValidationError('Account Is Already Verified')
+    
+    updated = User.objects.filter(pk=user.id, is_verified=False).update(is_verified=True)
 
-    user.is_verified = True
-    user.save(update_fields=["is_verified"])
-
-    return user
-
-@transaction.atomic
+    if not updated:
+        raise DRFValidationError("Account Is Already Verified Or Cannot Be Verified")
+    
 def token_create(user):
 
-    if not check_user_existence(user.email) or user is None:
-        raise ValueError("Prepare A Valid User")
 
     refresh = RefreshToken.for_user(user)
 
@@ -94,3 +105,4 @@ def send_otp_email(*, user, otp_obj):
         [user.email],
 
     )
+    return None

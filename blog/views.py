@@ -1,12 +1,12 @@
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser,IsAuthenticated
 
-from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
+from .permissions import IsPostAuthor
 from .services import category_create, category_update, post_create,comment_create,post_update
 from .selectors import get_comment_object, get_post_queryset,get_post_object,get_comment_queryset,get_category_queryset,get_category_object
-from .permissions import IsPostAuthorOrReadOnly
+from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 
 class PostListView(APIView):
     
@@ -24,7 +24,7 @@ class PostCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         post = post_create(data=serializer.validated_data, user=request.user)
         output = PostInputSerializer(post, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
+        return Response(output.data, status=status.HTTP_201_CREATED)
 
 class PostDetailView(APIView):
 
@@ -35,7 +35,7 @@ class PostDetailView(APIView):
 
 class PostUpdateView(APIView):
 
-    permission_classes = [IsPostAuthorOrReadOnly]
+    permission_classes = [IsPostAuthor]
 
     def put(self, request, pk):
 
@@ -58,7 +58,7 @@ class PostUpdateView(APIView):
 
 class PostDeleteView(APIView):
 
-    permission_classes = [IsPostAuthorOrReadOnly]
+    permission_classes = [IsPostAuthor]
 
     def delete(self, request, pk):
         post = get_post_object(pk=pk)

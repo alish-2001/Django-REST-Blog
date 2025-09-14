@@ -79,7 +79,7 @@ class User(AbstractUser, BaseModel):
         MALE = "M", "Male"
         FEMALE = "F", "Female"
 
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     gender = models.CharField(choices=Gender, null=True, blank=True)
     phone_number = models.CharField(max_length=11, null=True, blank=True)
     role = models.CharField(max_length=10, choices=Role, default=Role.NORMAL)

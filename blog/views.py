@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
 
 from .permissions import IsPostAuthor
-from .services import category_create, category_update, post_create,comment_create,post_update
+from .services import category_create, category_update, like_create, post_create,comment_create,post_update
 from .selectors import get_comment_object, get_post_queryset,get_post_object,get_comment_queryset,get_category_queryset,get_category_object
 from .serializers import CategoryInputSerializer, CategoryOutputSerializer, CommentInputSerializer, CommentOutputSerializer, PostInputSerializer, PostOutputSerializer
 
@@ -148,43 +148,15 @@ class CommentDeleteView(APIView):
         comment = get_comment_object(post_pk=post_pk, comment_pk=comment_pk)
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  
-    
+
+class LikeCreateView(APIView):
    
-#Viewsets
-# class PostViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
 
-#     serializer_class = PostSerializer
+    def post(self, request, pk):
 
-#     def get_queryset(self):
-#         queryset = Post.objects.filter(status='pub').select_related('category','user').prefetch_related('likes').all()
-#         return queryset
+        post = get_post_object(pk=pk)
+        user = request.user
+        like_create(post=post, user=user)
+        return Response(status=status.HTTP_201_CREATED)
     
-#     def get_serializer_context(self):
-
-#         user = self.request.user.id
-        
-#         return {'user':user,}
-    
-# class CommentViewSet(ModelViewSet): 
-
-#     serializer_class = CommentSerializer
-
-#     def get_queryset(self):
-#         post_id = self.kwargs['post_pk']
-#         qs = Comment.objects.filter(post_id=post_id, status='a').select_related('user','post').all()
-#         return qs
-    
-#     def get_serializer_context(self):
-#         return {'post_pk': self.kwargs['post_pk'], 'user_id': self.request.user.id}
-
-# class CategoryViewSet(ViewSet):
-
-#     def list(self, request):
-#         queryset = Category.objects.annotate(category_posts_count=Count('posts')).all()
-#         serializer = CategorySerializer(queryset, many=True)
-#         return Response(serializer.data)
-
-#     def retrieve(self, request, pk):
-#         obj = get_object_or_404(Category.objects.prefetch_related('posts'), id=pk)
-#         serializer = CategoryDetailSerializer(obj,context={'request':request})
-#         return Response(serializer.data)    

@@ -1,7 +1,7 @@
 from rest_framework_nested import routers
 from rest_framework.urls import path
 
-from .views import CategoryCreateView, CategoryDeleteView, CategoryDetailView, CategoryUpdateView, CommentCreateView, CommentDeleteView, CommentListView, PostUpdateView,PostListView,PostDetailView,PostDeleteView,PostCreateView,CategoryListView
+from .views import CategoryCreateView, CategoryDeleteView, CategoryDetailView, CategoryUpdateView, CommentCreateView, CommentDeleteView, CommentListView, LikeCreateView, PostUpdateView,PostListView,PostDetailView,PostDeleteView,PostCreateView,CategoryListView
 
 
 urlpatterns=[
@@ -21,6 +21,9 @@ urlpatterns=[
     path('categories/create', CategoryCreateView.as_view(), name='category-create'),
     path('categories/<int:pk>/update', CategoryUpdateView.as_view(), name='category-update'),
     path('categories/<int:pk>/delete', CategoryDeleteView.as_view(), name='category-delete'),
+
+    path('posts/<int:pk>/like/', LikeCreateView.as_view(), name='post-like'),
+    
 ]
 
 

@@ -7,7 +7,7 @@ def get_post_queryset():
     return Post.objects.filter(status='pub').select_related('category','user').annotate(likes_number=Count('likes'),comments_numbr=Count('comments')).order_by('-created_at')
 
 def get_post_object(pk:int):
-    return get_object_or_404(Post.objects.select_related('category','user'),pk=pk)
+    return get_object_or_404(Post.objects.select_related('category','user').annotate(likes_number=Count('likes'),comments_numbr=Count('comments')),pk=pk)
 
 def get_category_queryset():
     return Category.objects.annotate(posts_number=Count('posts')).all()

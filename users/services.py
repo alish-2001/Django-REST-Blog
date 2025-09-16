@@ -40,7 +40,8 @@ def user_create(*, data:dict):
     except DjangoValidationError as e:
         raise DRFValidationError(e.messages)
 
-    except Exception:
+    except Exception as e:
+        print(str(e))
         raise DRFValidationError('Registration Failed')
     
     return user
@@ -95,14 +96,14 @@ def token_create(user):
 
 def send_otp_email(*, user, otp_obj):
 
-    context = {"code": otp_obj.code, "site_name":"Blog Team", "expiry_minutes":"5",}
-    text_content = render_to_string("emails/verification_email.txt", context)
+    # context = {"code": otp_obj.code, "site_name":"Blog Team", "expiry_minutes":"5",}
+    # text_content = render_to_string("emails/verification_email.txt", context)
 
-    send_mail(
-        "Verify Your Account",
-        text_content,
-        None,
-        [user.email],
+    # send_mail(
+    #     "Verify Your Account",
+    #     text_content,
+    #     None,
+    #     [user.email],
 
-    )
+    # )
     return None

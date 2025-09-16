@@ -3,17 +3,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
+from rest_framework_simplejwt.views import TokenRefreshView,TokenVerifyView
 
 from .selectors import get_user_object_by_pk, get_users_queryset
 from .services import verify_user_by_otp, user_create, token_create
 from .validations import validate_user_authentication, validate_otp_new_anonymous_user
-from .serializers import UserCreateInputSerializer, UserLoginInputSerializer, UserCreateOutputSerializer, UserLoginOutputSerializer, UserLogoutInputSerializer, UserProfileOutputSerializer, UserVerifyAccountInputSerializer, UsersListSerializer
+from .schemas import user_create_schema,user_login_schema,user_profile_schema,users_list_schema,user_logout_schema,user_verify_account_schema,token_refresh_schema,token_verify_schema
+from .serializers import UserCreateInputSerializer,UserLoginInputSerializer,UserCreateOutputSerializer,UserLoginOutputSerializer,UserLogoutInputSerializer,UserProfileOutputSerializer,UserVerifyAccountInputSerializer,UsersListSerializer
 
 # Create your views here.
 
 class UserCreateView(APIView):
 
+    permission_classes = [AllowAny]
+
+    @user_create_schema
     def post(self, request):
 
         serializer = UserCreateInputSerializer(data=request.data)
@@ -23,6 +28,9 @@ class UserCreateView(APIView):
     
 class UserLoginView(APIView):
 
+    permission_classes = [AllowAny]
+
+    @user_login_schema
     def post(self, request):
 
         serializer = UserLoginInputSerializer(data=request.data)
@@ -46,8 +54,10 @@ class UserLoginView(APIView):
     
 class UserProfileView(APIView):
 
+    
     permission_classes = [IsAuthenticated]
 
+    @user_profile_schema
     def get(self, request):
 
         user = get_user_object_by_pk(pk=request.user.id)
@@ -58,6 +68,7 @@ class UsersListView(APIView):
     
     permission_classes = [IsAdminUser]
 
+    @users_list_schema
     def get(self, request):
 
         users= get_users_queryset()
@@ -68,6 +79,7 @@ class UserLogoutView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @user_logout_schema
     def post(self, request):
 
         serializer = UserLogoutInputSerializer(data=request.data)
@@ -83,6 +95,9 @@ class UserLogoutView(APIView):
         
 class UserVerifyAccount(APIView):
 
+    permission_classes = [AllowAny]
+
+    @user_verify_account_schema
     def post(self, request):
 
         serializer = UserVerifyAccountInputSerializer(data=request.data)
@@ -95,3 +110,11 @@ class UserVerifyAccount(APIView):
         verify_user_by_otp(user=user)
         
         return Response({'message':'User Verified Successfully'}, status=status.HTTP_200_OK)
+
+@token_refresh_schema
+class UserTokenRefreshView(TokenRefreshView):
+    pass 
+
+@token_verify_schema
+class UserTokenVerifyView(TokenVerifyView):
+    pass 

@@ -1,0 +1,1386 @@
+openapi: 3.0.3
+info:
+  title: DRF Blog
+  version: 1.0.0
+  description: Django REST Blog API
+paths:
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticate user using email and password. Returns access and
+        refresh tokens and basic user info.
+      summary: Login (Obtain tokens)
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLoginInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLoginInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginOutput'
+              examples:
+                LoginExample:
+                  value:
+                    access: eyJhbGciOiJ...<access_token>...
+                    refresh: eyJhbGciOiJ...<refresh_token>...
+                    username: alice
+                    first_name: Alice
+                    last_name: Doe
+                  summary: Login example
+          description: Authentication successful. Returns JWT access & refresh tokens
+            and user info.
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Invalid credentials
+  /auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: |-
+        Invalidate the provided refresh token (blacklist). The request body must include the `refresh` token.
+
+        Requires authentication.
+      summary: Logout (Blacklist refresh token)
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogoutInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLogoutInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLogoutInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '205':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                LogoutSuccess:
+                  value:
+                    message: User Logged out Successfuly
+                  summary: Logout success
+          description: Token blacklisted, user logged out
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Invalid refresh token
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+  /auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      description: Return the authenticated user's profile information.
+      summary: Retrieve current user's profile
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileOutput'
+          description: User profile
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+  /auth/signup/:
+    post:
+      operationId: auth_signup_create
+      description: |-
+        Create a new user account. The request must include `email`, `password` and `confirm_password`.
+
+        On success returns the created user representation (id, email, role, verification flags, etc).
+      summary: Create User (Signup)
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreateInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreateInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreateOutput'
+          description: User created successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+  /auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: Exchange a valid refresh token for a new access token. If refresh
+        token rotation is enabled the response may also include a new refresh token.
+        This endpoint is provided by `rest_framework_simplejwt` and is publicly accessible.
+      summary: Refresh access token
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                RefreshSuccess:
+                  value:
+                    access: eyJ0eXAiOiJKV1QiLCJh...<new_access_token>...
+                    refresh: eyJ0eXAiOiJKV1QiLCJh...<new_refresh_token>...
+                  summary: Typical refresh response
+          description: New access token (and optionally a new refresh token).
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Bad request (malformed or missing refresh token)
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Invalid or expired refresh token
+  /auth/token/verify/:
+    post:
+      operationId: auth_token_verify_create
+      description: 'Verify whether a token (access or refresh) is valid. The request
+        body should be `{"token": "<token_to_verify>"}`. This endpoint is provided
+        by `rest_framework_simplejwt`.'
+      summary: Verify token validity
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                VerifySuccess:
+                  value: {}
+                  summary: Valid token
+          description: Token is valid (usually returns 200 with empty body).
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Bad request (malformed payload)
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Token is invalid or expired
+  /auth/users/:
+    get:
+      operationId: auth_users_retrieve
+      description: Return a list of users. Requires admin privileges.
+      summary: List users (admin only)
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number (if pagination enabled)
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search by username/email (if supported)
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsersList'
+          description: List of users
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Admin privileges required
+  /auth/verify-account/:
+    post:
+      operationId: auth_verify_account_create
+      description: Verify a newly created user's account using a 5-digit verification
+        code and the user's email.
+      summary: Verify user account (OTP)
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserVerifyAccountInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserVerifyAccountInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserVerifyAccountInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                VerifyExample:
+                  value:
+                    message: User Verified Successfully
+                  summary: Verify example
+          description: User verified successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Invalid code or request
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: User or OTP not found
+  /blog/categories/:
+    get:
+      operationId: blog_categories_list
+      description: Return list of categories (CategoryOutputSerializer).
+      summary: List categories
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryOutput'
+          description: List of categories
+  /blog/categories/{id}:
+    get:
+      operationId: blog_categories_detail
+      description: Return a single category by `pk`.
+      summary: Retrieve a category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+          description: Category detail
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+  /blog/categories/{id}/delete:
+    delete:
+      operationId: blog_categories_delete_destroy
+      description: Delete the category (Admin-only).
+      summary: Delete category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          content:
+            application/json:
+              schema: null
+          description: Deleted
+  /blog/categories/{id}/update:
+    put:
+      operationId: blog_categories_update_update
+      description: Update a category (Admin-only). PUT = full update, PATCH = partial
+        update.
+      summary: Update category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+          description: Updated category
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Admin required
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+    patch:
+      operationId: blog_categories_update_partial_update
+      description: Update a category (Admin-only). PUT = full update, PATCH = partial
+        update.
+      summary: Update category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryInputRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+          description: Updated category
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Admin required
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+  /blog/categories/create:
+    post:
+      operationId: blog_categories_create_create
+      description: Create a new category. Admin-only (current implementation).
+      summary: Create category
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+          description: Created category (view currently returns 200)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Admin required
+  /blog/posts/:
+    get:
+      operationId: blog_posts_list
+      description: Return a list of posts serialized with `PostOutputSerializer`.
+      summary: List posts
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number (if pagination enabled).
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search text (title/body). Supported if selector implements it.
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostOutput'
+          description: A list of posts
+  /blog/posts/{id}/:
+    get:
+      operationId: blog_posts_detail
+      description: Return a single post by `id` using `PostOutputSerializer`.
+      summary: Retrieve a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOutput'
+          description: Post detail
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+  /blog/posts/{id}/comments/:
+    get:
+      operationId: blog_posts_comments_retrieve
+      description: Return all comments for the post identified by `id`.
+      summary: List comments for a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Comments
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentOutput'
+          description: List of comments
+  /blog/posts/{id}/comments/create:
+    post:
+      operationId: blog_posts_comments_create_create
+      description: Create a comment on the post identified by `id`. Authenticated
+        users only.
+      summary: Create comment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentOutput'
+          description: Created comment
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Post not found
+  /blog/posts/{id}/delete/:
+    delete:
+      operationId: blog_posts_delete_destroy
+      description: Delete the specified post (author only). Returns 204 No Content.
+      summary: Delete a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          content:
+            application/json:
+              schema: null
+          description: Deleted
+  /blog/posts/{id}/like/:
+    post:
+      operationId: blog_posts_like_create
+      description: Create a like for the post identified by `id`. Requires authentication.
+        No request body is required — the authenticated user will be recorded as the
+        liker.
+      summary: Like a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Primary key of the post to like
+        required: true
+      tags:
+      - Like
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: null
+          description: Like created (no response body)
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Post not found
+  /blog/posts/{id}/update/:
+    put:
+      operationId: blog_posts_update_update
+      description: Update an existing post. `PUT` expects full payload; `PATCH` allows
+        partial. Author-only.
+      summary: Update a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOutput'
+          description: Updated post representation
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Permission denied
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+    patch:
+      operationId: blog_posts_update_partial_update
+      description: Update an existing post. `PUT` expects full payload; `PATCH` allows
+        partial. Author-only.
+      summary: Update a post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPostInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPostInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPostInputRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOutput'
+          description: Updated post representation
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Permission denied
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Not found
+  /blog/posts/{post_pk}/comments/{comment_pk}/delete:
+    delete:
+      operationId: blog_posts_comments_delete_destroy
+      description: Delete a comment. Admin-only (current implementation).
+      summary: Delete comment
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: post_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Comments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          content:
+            application/json:
+              schema: null
+          description: Deleted
+  /blog/posts/create:
+    post:
+      operationId: blog_posts_create_create
+      description: Create a new post. Authenticated users only. Request must conform
+        to PostInputSerializer.
+      summary: Create post
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostInputRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOutput'
+          description: Created post representation
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: Authentication required
+components:
+  schemas:
+    CategoryInputRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - description
+      - name
+    CategoryOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        post:
+          type: string
+          format: uri
+          readOnly: true
+        posts_number:
+          type: integer
+          default: 0
+      required:
+      - name
+      - post
+    CommentInputRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+      - text
+      - title
+    CommentOutput:
+      type: object
+      properties:
+        post:
+          type: string
+          format: uri
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        text:
+          type: string
+          maxLength: 2000
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - post
+      - text
+      - title
+      - updated_at
+      - user
+    PatchedCategoryInputRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+    PatchedPostInputRequest:
+      type: object
+      properties:
+        category:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        cover_image:
+          type: string
+          format: binary
+          nullable: true
+    PostInputRequest:
+      type: object
+      properties:
+        category:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        cover_image:
+          type: string
+          format: binary
+          nullable: true
+      required:
+      - body
+      - category
+      - title
+    PostOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          maxLength: 5
+        likes_number:
+          type: integer
+          default: 0
+        comments_numbr:
+          type: integer
+          default: 0
+        title:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          maxLength: 2000
+        cover_image:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - body
+      - category
+      - cover_image
+      - created_at
+      - id
+      - status
+      - title
+      - updated_at
+      - user
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TokenVerifyRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - token
+    UserCreateInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          writeOnly: true
+          minLength: 1
+          maxLength: 60
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 50
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 50
+      required:
+      - confirm_password
+      - email
+      - password
+    UserCreateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        role:
+          type: string
+          readOnly: true
+        is_verified:
+          type: boolean
+          readOnly: true
+        is_staff:
+          type: boolean
+          readOnly: true
+      required:
+      - email
+      - id
+      - is_staff
+      - is_verified
+      - role
+    UserLoginInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          writeOnly: true
+          minLength: 1
+          maxLength: 60
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 50
+      required:
+      - email
+      - password
+    UserLoginOutput:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+          maxLength: 600
+        refresh:
+          type: string
+          readOnly: true
+          maxLength: 2000
+        username:
+          type: string
+          readOnly: true
+          maxLength: 60
+        first_name:
+          type: string
+          readOnly: true
+          maxLength: 150
+        last_name:
+          type: string
+          readOnly: true
+          maxLength: 150
+      required:
+      - access
+      - first_name
+      - last_name
+      - refresh
+      - username
+    UserLogoutInputRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 2000
+      required:
+      - refresh
+    UserProfileOutput:
+      type: object
+      properties:
+        username:
+          type: string
+          readOnly: true
+          maxLength: 60
+        first_name:
+          type: string
+          readOnly: true
+          maxLength: 150
+        last_name:
+          type: string
+          readOnly: true
+          maxLength: 150
+        bio:
+          type: string
+          readOnly: true
+          maxLength: 500
+        gender:
+          type: string
+          readOnly: true
+          maxLength: 10
+        phone_number:
+          type: string
+          readOnly: true
+          maxLength: 15
+        image:
+          type: string
+          format: uri
+          readOnly: true
+        birth_date:
+          type: string
+          format: date
+          readOnly: true
+        is_verified:
+          type: boolean
+          readOnly: true
+      required:
+      - bio
+      - birth_date
+      - first_name
+      - gender
+      - image
+      - is_verified
+      - last_name
+      - phone_number
+      - username
+    UserVerifyAccountInputRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 5
+        email:
+          type: string
+          format: email
+          writeOnly: true
+          minLength: 1
+          maxLength: 60
+      required:
+      - code
+      - email
+    UsersList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          maxLength: 60
+        is_active:
+          type: boolean
+          readOnly: true
+        gender:
+          type: string
+          readOnly: true
+          maxLength: 10
+        role:
+          type: string
+          readOnly: true
+          maxLength: 10
+        is_verified:
+          type: boolean
+          readOnly: true
+        is_superuser:
+          type: boolean
+          readOnly: true
+      required:
+      - gender
+      - id
+      - is_active
+      - is_superuser
+      - is_verified
+      - role
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

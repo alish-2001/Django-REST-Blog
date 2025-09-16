@@ -1,0 +1,827 @@
+{
+	"info": {
+		"_postman_id": "77a2b20a-bf13-4b7e-8763-708641a2b9e9",
+		"name": "Blog App",
+		"description": "Postman collection for the `blog` app endpoints.\n\nUse the provided environment (Blog API - Local) and set `base_url` to your server (e.g. http://127.0.0.1:8000).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48304916",
+		"_collection_link": "https://www.postman.com/alishahmoradidev-6214543/workspace/drf-blog/collection/48304916-77a2b20a-bf13-4b7e-8763-708641a2b9e9?action=share&source=collection_link&creator=48304916"
+	},
+	"item": [
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "List Posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blog/posts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"A new post\",\n    \"body\": \"Content goes here\",\n    \"category\": 1,\n    \"cover_image\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/blog/posts/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"create"
+							]
+						},
+						"description": "# Create Post — POST `{{base_url}}/posts/create`\n\n**Summary / Purpose**\n\nThis endpoint creates a new blog post associated with the authenticated user after validating the provided input data.\n\n**Default behavior:**\n\n- The authenticated user becomes the post author (handled by the service called in the view).\n    \n- The implemented view returns the _input serializer representation_ (fields from `PostInputSerializer`) and a `200 OK` status (note: implementation detail — see “Notes”).\n    \n\n## **Authentication**\n\nRequired — `IsAuthenticated` (any configured DRF authentication works: token, JWT, or session cookies).\n\n## **Path / Query Parameters**\n\nNone\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` for JSON requests. For image upload use `multipart/form-data` |\n\n**Request Body (JSON)**\n\nFields (from `PostInputSerializer`):\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `category` | integer (PK) | Yes | Primary key of an existing Category |\n| `title` | string | Yes | Title of the post — max length **100** |\n| `body` | string | Yes | Post body — max length **2000** |\n| `cover_image` | file / URL / null | No | Optional image field (send as multipart file or null) |\n\n## **Validation Rules**\n\n| Field | Rule | Error Response |\n| --- | --- | --- |\n| `category` | Must reference an existing Category PK | `400 Bad Request` with message like `\"category\": [\"Invalid pk ...\"]` |\n| `title` | Non-empty; max 100 characters | `400 Bad Request` if blank or too long |\n| `body` | Non-empty; max 2000 characters | `400 Bad Request` if blank or too long |\n| `cover_image` | If provided, must be a valid image/file | `400 Bad Request` if invalid file type |\n\n## **Success Response**\n\n- **Status:** `201 Created`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"category\": 3,\n  \"title\": \"My new post\",\n  \"body\": \"Text up to 2000 chars\",\n  \"cover_image\": \"http://example.com/media/covers/mycover.jpg\"\n}\n\n ```\n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Validation failed (invalid/missing fields) | `{ \"title\": [\"This field may not be blank.\"] }` |\n| `401 Unauthorized` | Not authenticated | `{ \"detail\": \"Authentication credentials were not provided.\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								""
+							]
+						},
+						"description": "# Retrieve Post (detail) — GET `{{base_url}}/blog/posts/{pk}/`\n\n## **Summary / Purpose**\n\nFetch a single post by primary key and return its full representation.\n\n## **Default behavior:**\n\n- Returns `404 Not Found` if the post does not exist.\n    \n\n## **Authentication**\n\nNot required — public read access.\n\n## **Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `pk` | integer | Yes — post primary key |\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Accept` | No | `application/json` |\n\n## **Request Body (JSON)**\n\nNone\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"id\": 42,\n  \"user\": \"alice\",\n  \"status\": \"pub\",\n  \"likes_number\": 5,\n  \"comments_numbr\": 2,\n  \"title\": \"My first post\",\n  \"category\": \"Django\",\n  \"body\": \"Full post body\",\n  \"cover_image\": \"http://example.com/media/images/cover.jpg\",\n  \"created_at\": \"2025-09-10T12:34:56Z\",\n  \"updated_at\": \"2025-09-11T08:00:00Z\"\n}\n\n ```\n\n**Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `404 Not Found` | Post not found | `{ \"detail\": \"Not found.\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated title\",\n    \"body\": \"Updated content\",\n    \"category\": 1,\n    \"cover_image\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/update/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								"update",
+								""
+							]
+						},
+						"description": "# Update Post — PUT / PATCH `{{base_url}}/blog/posts/{pk}/update/`\n\n## **Summary / Purpose**\n\nUpdate an existing post. The user must have a valid token and also be the post's author; if not, the action is not possible.\n\n## **Default behavior:**\n\n- The view invokes `post_update(...)` service and returns the updated post.\n    \n\n## **Authentication**\n\nRequired\n\n## **Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `pk` | integer | Yes |\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | `application/json` or `multipart/form-data` |\n| `Authorization` | Yes | Auth credentials required |\n\n## **Request Body (JSON)**\n\n| Field | Type | Required for PUT | Notes |\n| --- | --- | --- | --- |\n| `category` | integer (PK) | Yes for PUT | Category PK |\n| `title` | string | Yes for PUT | max 100 |\n| `body` | string | Yes for PUT | max 2000 |\n| `cover_image` | file / null | Optional | replace cover image with multipart |\n\n**Validation Rules**\n\n| Field | Rule | Error Response |\n| --- | --- | --- |\n| `category` | Must exist | `400 Bad Request` |\n| `title` | ≤100 chars | `400 Bad Request` |\n| `body` | ≤2000 chars | `400 Bad Request` |\n\n**Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"id\": 42,\n  \"user\": \"alice\",\n  \"status\": \"pub\",\n  \"likes_number\": 5,\n  \"comments_numbr\": 2,\n  \"title\": \"Updated title\",\n  \"category\": \"Django\",\n  \"body\": \"Updated body\",\n  \"cover_image\": \"http://example.com/media/images/new-cover.jpg\",\n  \"created_at\": \"2025-09-10T12:34:56Z\",\n  \"updated_at\": \"2025-09-12T10:00:00Z\"\n}\n\n ```\n\n**Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Validation errors | `{ \"title\": [\"Ensure this field has no more than 100 characters.\"] }` |\n| `403 Forbidden` | Not the author | `{ \"detail\": \"You do not have permission to perform this action.\" }` |\n| `404 Not Found` | Post not found | `{ \"detail\": \"Not found.\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post (PATCH)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Quick edit\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/update/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								"update",
+								""
+							]
+						},
+						"description": "Partial update of a post. Auth required; must be author."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/delete/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								"delete",
+								""
+							]
+						},
+						"description": "# Delete Post — DELETE `{{base_url}}/posts/{id}/delete/`\n\n## **Summary / Purpose**\n\nDelete the specified post. Only post author (with a valid token)or admin user can delete a post\n\n## **Authentication**\n\nRequired\n\n## **Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `pk` | integer | Yes |\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Authorization` | Yes | Auth credentials required |\n\n## **Request Body (JSON)**\n\nNone\n\n## **Success Response**\n\n- **Status:** `204 No Content`\n    \n- **Body:** empty\n    \n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `403 Forbidden` | User is not post author | You do not have permission to perform this action. |\n| `404 Not Found` | Post not found | `{ \"detail\": \"Not found.\" }` |"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "List Comments",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/comments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								"comments",
+								""
+							]
+						},
+						"description": "# List Comments for a Post — GET `{{base_url}}/blog/posts/{post_id}/comments/`\n\n## **Summary / Purpose**\n\nReturn all comments for the specified post. Only the comments with 'approved' status will be displayed.\n\n## **Default behavior:**\n\n- `post` field in the response is a hyperlinked URL to the post detail.\n    \n\n## **Authentication**\n\nNot required — public access.\n\n## **Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `pk` | integer | Yes |\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Accept` | No | `application/json` |\n\n## **Request Body (JSON)**\n\nNone\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n[\n  {\n    \"post\": \"http://example.com/posts/42/\",\n    \"user\": \"bob\",\n    \"title\": \"Nice article\",\n    \"text\": \"I learned a lot!\",\n    \"created_at\": \"2025-09-12T09:00:00Z\",\n    \"updated_at\": \"2025-09-12T09:00:00Z\"\n  }\n]\n\n ```\n\n**Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `404 Not Found` | Post not found | `{ \"detail\": \"Not found.\" }` |\n\nEndFragment"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Nice post!\",\n  \"text\": \"The article about this product was amazing...\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/blog/posts/{{post_id}}/comments/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blog",
+								"posts",
+								"{{post_id}}",
+								"comments",
+								"create"
+							]
+						},
+						"description": "StartFragment\n\n## Create Comment — POST `{{base_url}}/posts/{pk}/comments/create`\n\n## **Summary / Purpose**\n\nCreate a new comment for the specified post. Default status of the new created comment is 'not approved' , so it won't be shown in the post comments list until the admin change the status to 'approved'.\n\n## **Authentication**\n\nRequired — `IsAuthenticated`.\n\n**Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `pk` | integer | Yes |\n\n**Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | `application/json` |\n| `Authorization` | Yes | Auth credentials required |\n\n**Request Body (JSON)**\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `title` | string | Yes | max length **200** |\n| `text` | string | Yes | max length **2000** |\n\n**Validation Rules**\n\n| Field | Rule | Error Response |\n| --- | --- | --- |\n| `title` | Non-empty; ≤200 chars | `400 Bad Request` |\n| `text` | Non-empty; ≤2000 chars | `400 Bad Request` |\n| `pk` | Must reference an existing post | `404 Not Found` |\n\n**Success Response**\n\n- **Status:** `201 Created`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"post\": \"http://example.com/posts/42/\",\n  \"user\": \"alice\",\n  \"title\": \"Short comment title\",\n  \"text\": \"Comment text\",\n  \"created_at\": \"2025-09-14T10:00:00Z\",\n  \"updated_at\": \"2025-09-14T10:00:00Z\"\n}\n\n ```\n\n**Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Validation failed | `{ \"text\": [\"This field is required.\"] }` |\n| `401 Unauthorized` | Not authenticated | `{ \"detail\": \"Authentication credentials were not provided.\" }` |\n| `404 Not Found` | Post not found | `{ \"detail\": \"Not found.\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/posts/{{post_id}}/comments/{{comment_id}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"comments",
+								"{{comment_id}}",
+								"delete"
+							]
+						},
+						"description": "StartFragment\n\n# Delete Comment — DELETE `{{base_url}}/posts/{post_pk}/comments/{comment_pk}/delete`\n\n## **Summary / Purpose**\n\nDelete a specific comment associated with a given post.\n\n**Authentication**  \n  \nRequired — `IsAdminUser` (only admin users may delete comments per current implementation).\n\n## **Path / Query Parameters**\n\n| Path Parameter | Type | Required |\n| --- | --- | --- |\n| `post_pk` | integer | Yes |\n| `comment_pk` | integer | Yes |\n\n**Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Authorization` | Yes | Admin auth required |\n\n**Request Body (JSON)**  \n  \nNone\n\n## **Success Response**\n\n- **Status:** `204 No Content`\n    \n- **Body:** empty\n    \n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `403 Forbidden` | Not admin | `{ \"detail\": \"You do not have permission to perform this action.\" }` |\n| `404 Not Found` | Comment or post not found | `{ \"detail\": \"Not found.\" }` |"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/categories/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								""
+							]
+						},
+						"description": "List categories."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/categories/{{category_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"{{category_id}}"
+							]
+						},
+						"description": "Get category detail."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200 or 201', () => pm.expect([200,201]).to.include(pm.response.code));",
+									"try {",
+									"  var json = pm.response.json();",
+									"  if (json.id) pm.collectionVariables.set('category_id', json.id);",
+									"} catch(e){}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Django\",\n  \"description\": \"Django related posts\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"create"
+							]
+						},
+						"description": "Create a category. Admin only."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Django\",\n  \"description\": \"Updated\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/{{category_id}}/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"{{category_id}}",
+								"update"
+							]
+						},
+						"description": "Full update category. Admin only."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Small change\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/{{category_id}}/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"{{category_id}}",
+								"update"
+							]
+						},
+						"description": "Partial update category. Admin only."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 204', () => pm.response.to.have.status(204));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/categories/{{category_id}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"{{category_id}}",
+								"delete"
+							]
+						},
+						"description": "Delete category. Admin only."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "post_id",
+			"value": ""
+		},
+		{
+			"key": "comment_id",
+			"value": ""
+		},
+		{
+			"key": "category_id",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		}
+	]
+}

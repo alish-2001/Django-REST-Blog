@@ -1,0 +1,535 @@
+{
+	"info": {
+		"_postman_id": "a67b7ab0-9e9a-4ff8-a23f-990203c66a7e",
+		"name": "Users App",
+		"description": "Postman collection generated from the Users app urls/views you pasted. Endpoints assume a prefix of /auth/ for signup, login, logout, verify-account, and token endpoints; and /users/ for profile and users list if included in routing. Adjust base_url and paths if your URL include is different.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48304916",
+		"_collection_link": "https://www.postman.com/alishahmoradidev-6214543/workspace/drf-blog/collection/48304916-a67b7ab0-9e9a-4ff8-a23f-990203c66a7e?action=share&source=collection_link&creator=48304916"
+	},
+	"item": [
+		{
+			"name": "Auth & Users",
+			"item": [
+				{
+					"name": "Sign Up (create user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{user_password}}\",\n    \"confirm_password\": \"{{user_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"signup",
+								""
+							]
+						},
+						"description": "# **Create User — POST** **`{{base_url}}/auth/signup/`**\n\n## **Summary / Purpose**\n\nThis endpoint creates a new user account after validating the provided input data.\n\n- **Default behavior:**\n    \n    - The account is **not verified** by default.\n        \n    - The **username** is automatically set to the provided email.\n        \n- **Post-creation actions:**\n    \n    1. **Create OTP object**\n        \n        - `code`6-digit verification code. This code is required to verify the user’s account.\n            \n        - `user`Associated user account\n            \n        - `expiry`Expiration datetime of the code\n            \n    2. **Send verification code by email**\n        \n        - The verification code is emailed to the user.\n            \n        - The user must submit this code to the **`verify-account`** **endpoint** to complete verification.\n            \n\nFor more details on the verification process, see the [<code>verify-account endpoint</code>](https://alishahmoradidev-6214543.postman.co/workspace/61378c90-8275-4820-bfc8-7bdddca4d9d8/request/48304916-f6ee1ad1-f617-4e49-bc7b-cd8be1f0e76b?action=share&source=copy-link&creator=48304916&ctx=documentation) **documentation**.\n\n---\n\n## **Authentication**\n\n- **Not required** — any user can call this endpoint to create a new account.\n    \n\n---\n\n## **Path / Query Parameters**\n\n- None\n    \n\n---\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` |\n\n---\n\n## **Request Body (JSON)**\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `email` | string | Yes | Valid, unique email address |\n| `password` | string | Yes | Plain text password (hashed server-side) |\n| `confirm_password` | string | Yes | Must match the `password` field |\n\n---\n\n## **Validation Rules**\n\n| Field | Rule | Error Response |\n| --- | --- | --- |\n| `email` | Must be valid email format and not already registered | Returns readable error if invalid or already taken |\n| `password` | Must meet password policy (e.g., minimum length, complexity) | Returns readable error if invalid |\n| `confirm_password` | Must exactly match `password` | Returns error if mismatch |\n\n---\n\n## **Success Response**\n\n- **Status:** `201 Created`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"username\": \"user@example.com\",\n  \"email\": \"user@example.com\",\n  \"is_verified\": false,\n  \"message\": \"User created successfully. Please check your email for the verification code.\"\n}\n\n ```\n\n---\n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Validation failed (invalid email, password, or mismatch) | `{ \"error\": \"Passwords do not match\" }` |\n| `400 Bad Request` | Email already registered | `{ \"error\": \"This email is already registered\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Account (OTP)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{user_email}}\",\n    \"code\": \"12065\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/verify-account/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"verify-account",
+								""
+							]
+						},
+						"description": "# **Verify Account — POST** **`{{base_url}}/auth/verify-account/`**\n\n## **Summary / Purpose**\n\nThis endpoint verifies a newly created user account using a **One-Time Password (OTP)**.\n\n- When a user registers:\n    \n    - `is_verified` is set to `False`.\n        \n    - A **6-digit numeric OTP** is generated and sent to the user’s email.\n        \n- The user must submit this OTP to complete account verification.\n    \n\n**Security Note:**\n\nThe client should **not expose the user’s email** in the verification UI.\n\n---\n\n## **Authentication**\n\n- **Not required** — users can verify without logging in.\n    \n\n---\n\n## **Path / Query Parameters**\n\n- None\n    \n\n---\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` |\n\n---\n\n## **Request Body (JSON)**\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `email` | string | Yes | Registered email of the unverified user (hidden in UI) |\n| `code` | string | Yes | 6-digit numeric OTP sent to the user’s email |\n\n---\n\n## **Validation Rules**\n\n| Field | Rule | Error Response |\n| --- | --- | --- |\n| `email` | Required, must be valid email format, must match an unverified registered user | Returns error if missing, invalid, or user not found |\n| `code` | Required, 6-character string, digits only | Returns error if missing, wrong length, or contains non-numeric characters |\n| OTP Expiry | Code must not be expired | Returns error if expired |\n| Already Verified | User must not be already verified | Returns error if account is already verified |\n\n---\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"message\": \"User verified successfully\"\n}\n\n ```\n\n---\n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Missing or invalid code/email | `{ \"error\": \"All fields are required\" }` |\n| `400 Bad Request` | Code format invalid | `{ \"error\": \"Code must be a 6-digit numeric string\" }` |\n| `400 Bad Request` | OTP expired | `{ \"error\": \"Code is expired, request another one\" }` |\n| `404 Not Found` | User not found or code not found | `{ \"error\": \"Invalid user or code\" }` |\n| `400 Bad Request` | Account already verified | `{ \"error\": \"Account is already verified\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Login (user login)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{user_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/login/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "# **Login User — POST** **`{{base_url}}/auth/login/`**\n\n## **Summary / Purpose**\n\nThis endpoint allows a registered user to authenticate using their **email** and **password**.\n\n- If the credentials are valid, and the account is **active** (`is_active=True`) and **verified** (`is_verified=True`), the server issues a pair of **JSON Web Tokens (JWT)**:\n    \n\n| Token | Purpose |\n| --- | --- |\n| **Access token** | Short-lived token used in the `Authorization` header for authenticated requests |\n| **Refresh token** | Longer-lived token used to obtain new access tokens via `POST {{base_url}}/auth/token/refresh/` |\n\n> These tokens enable the client to authenticate requests without sending the password repeatedly. \n  \n\n---\n\n## **Authentication**\n\n- **Not required** to call this endpoint.\n    \n- The user must only be **registered, active, and verified** to receive tokens.\n    \n\n---\n\n## **Path / Query Parameters**\n\n- None\n    \n\n---\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` |\n\n---\n\n## **Request Body (JSON)**\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `email` | string | Yes | Registered valid email address |\n| `password` | string | Yes | Plain text password (hashed server-side) |\n\n---\n\n## **Validation Rules**\n\n| Condition | Error Response |\n| --- | --- |\n| Email not registered | `400 Bad Request` — `{ \"error\": \"Invalid credentials\" }` |\n| Password mismatch | `400 Bad Request` — `{ \"error\": \"Invalid credentials\" }` |\n| User inactive (`is_active=False`) | `403 Forbidden` — `{ \"error\": \"Account is deactivated\" }` |\n| User not verified (`is_verified=False`) | `403 Forbidden` — `{ \"error\": \"Account not verified\" }` |\n\n---\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"username\": \"alice@example.com\",\n  \"first_name\": \"Alice\",\n  \"last_name\": \"Doe\",\n  \"access\": \"<jwt-access-token>\",\n  \"refresh\": \"<jwt-refresh-token>\"\n}\n\n ```\n\n- FieldDescription`username`User’s username (email by default)`first_name`User’s first name`last_name`User’s last name`access`Short-lived JWT for Authorization header (`Authorization: Bearer` )`refresh`Long-lived JWT to request new access tokens\n    \n\n---\n\n## **Notes**\n\n1. Use the **access token** in the `Authorization` header for subsequent authenticated requests.\n    \n2. When the access token expires, use the **refresh token** at `POST {{base_url}}/auth/token/refresh/` to obtain a new access token.\n    \n3. Failed login attempts do **not reveal which part (email or password) failed**, for security reasons."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile (current user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								""
+							]
+						},
+						"description": "# **User Profile — GET** **`{{base_url}}/auth/profile/`**\n\n## **Summary / Purpose**\n\nThis endpoint returns the currently authenticated user’s profile information, including username, email, first name, and last name.\n\nIt is used to retrieve user details for display or client-side personalization.\n\n---\n\n## **Authentication**\n\n- **Required:** Yes\n    \n- The client must send a **valid (not expired) access token** in the `Authorization` header.\n    \n- Authorization: Bearer\n    \n\n---\n\n## **Path / Query Parameters**\n\n- None\n    \n\n---\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` |\n| `Authorization` | Yes | Bearer token obtained from login |\n\n---\n\n## **Request Body**\n\n- None\n    \n\n---\n\n## **Validation Rules / Possible Errors**\n\n| Condition | Response | Description |\n| --- | --- | --- |\n| Missing or invalid token | `401 Unauthorized` | User must provide a valid access token |\n| Expired token | `401 Unauthorized` | Access token has expired; user must refresh token or login again |\n| User is inactive | `403 Forbidden` | User exists but account is deactivated |\n\n---\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body (example):**\n    \n\n```\n{\n  \"username\": \"alice@example.com\",\n  \"first_name\": \"Alice\",\n  \"last_name\": \"Doe\",\n  \"email\": \"alice@example.com\"\n}\n\n ```\n\n- Fields returned:\n    \n    - `username` (string) — user’s login name\n        \n    - `first_name` (string) — user’s first name\n        \n    - `last_name` (string) — user’s last name\n        \n    - `email` (string) — registered email address\n        \n\n---\n\n## **Notes**\n\n1. This endpoint is **read-only**; it does not allow editing user information.\n    \n2. To update profile information, use a separate **update-profile endpoint** with proper authentication.\n    \n3. The returned data is based on the currently authenticated user — no other user data can be accessed."
+					},
+					"response": []
+				},
+				{
+					"name": "Token Verify (SimpleJWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\":\"{{access_token}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/verify/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								"verify",
+								""
+							]
+						},
+						"description": "# **Verify Token — POST** **`{{base_url}}/auth/token/verify/`**\n\n## **Summary / Purpose**\n\nThis endpoint is used to **verify that a JSON Web Token (JWT) is valid and not expired**.\n\n- It ensures that the token:\n    \n    1. Is correctly signed with the server’s `SECRET_KEY`.\n        \n    2. Has not expired (`exp` claim is in the future).\n        \n    3. Contains a valid payload.\n        \n\n**Note:** This endpoint does **not return user information** or refresh the token; it only validates the token’s authenticity.\n\n---\n\n## **Authentication**\n\n- **Not required** to call this endpoint.\n    \n- Typically used to **validate tokens on the client side** or for testing.\n    \n\n---\n\n## **Path / Query Parameters**\n\n- None\n    \n\n---\n\n## **Request Headers**\n\n| Header | Required | Description |\n| --- | --- | --- |\n| `Content-Type` | Yes | Must be `application/json` |\n\n---\n\n## **Request Body (JSON)**\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `token` | string | Yes | JWT (access or refresh token) to be verified |\n\n---\n\n## **Validation Rules**\n\n| Condition | Response |\n| --- | --- |\n| Missing token | `400 Bad Request` |\n| Invalid token signature | `401 Unauthorized` — `{ \"detail\": \"Token is invalid or expired\" }` |\n| Expired token | `401 Unauthorized` — `{ \"detail\": \"Token is invalid or expired\" }` |\n| Malformed token | `401 Unauthorized` — `{ \"detail\": \"Token is invalid or expired\" }` |\n\n---\n\n## **Success Response**\n\n- **Status:** `200 OK`\n    \n- **Body:**\n    \n\n```\n{}\n\n ```\n\n- **Description:** Empty JSON indicates the token is valid.\n    \n\n---\n\n## **Failure Responses**\n\n| Status | Condition | Example Response |\n| --- | --- | --- |\n| `400 Bad Request` | Token field missing in request | `{ \"token\": [\"This field is required.\"] }` |\n| `401 Unauthorized` | Token expired, invalid, or tampered | `{ \"detail\": \"Token is invalid or expired\" }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Token Refresh (SimpleJWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/refresh/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								"refresh",
+								""
+							]
+						},
+						"description": "# Refresh Token — `POST {{base_url}}/auth/token/refresh/`\n\n**Purpose**\n\nExchange a valid **refresh token** for a new **access token** (and — when configured — a new refresh token). Use this endpoint when the access token has expired and the user needs a fresh token without full re-login.\n\n---\n\n## Request\n\n**URL**\n\n```\nPOST {{base_url}}/auth/token/refresh/\n\n ```\n\n**Headers**\n\n```\nContent-Type: application/json\n\n ```\n\n**Body**\n\n```\n{\n  \"refresh\": \"<current-refresh-token>\"\n}\n\n ```\n\n---\n\n## Behavior\n\n1. **Refresh Token Rotation is enabled**\n    \n    Every successful refresh call **returns a new refresh token**. The client **must replace** its stored refresh token with the returned one.\n    \n\n- **Refresh Token will be added to black list after rotation**\n    \n    The refresh token that was just used will be **blacklisted** and cannot be used again.\n    \n- This combination prevents replay attacks: once a refresh token is used it is rotated and the old token is invalidated.\n    \n- Keep in mind that after rotation or blacklisting the refresh token, access token will be validated until it expires\n    \n\n---\n\n## Success Response\n\n**Status:** `200 OK`  \n**Body (when rotation enabled):**\n\n```\n{\n  \"access\": \"<new-access-token>\",\n  \"refresh\": \"<new-refresh-token>\"\n}\n\n ```\n\n**Body (when rotation disabled):**\n\n```\n{\n  \"access\": \"<new-access-token>\"\n}\n\n ```\n\n**Client action:** If a `refresh` value is returned, store/replace it immediately (e.g., in an httpOnly cookie or secure storage). Use `access` for `Authorization: Bearer` on subsequent requests.\n\n---\n\n## Failure Responses\n\n| Status | Condition | Example body |\n| --- | --- | --- |\n| `400 Bad Request` | Missing `refresh` field | `{\"refresh\":[\"This field is required.\"]}` |\n| `401 Unauthorized` | Token invalid, malformed, or expired | `{\"detail\":\"Token is invalid or expired\"}` |\n| `401 Unauthorized` | Token blacklisted (replay detected) | `{\"detail\":\"Token is blacklisted\"}` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout (revoke refresh)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refresh\": \"{{refresh_token}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "StartFragment\n\n# **Logout (Revoke Refresh Token)** — `POST {{base_url}}/auth/logout/`\n\n**Purpose**\n\nInvalidate (blacklist) a refresh token so it can no longer be used to obtain new access tokens. This endpoint performs server-side logout for JWT-based authentication by blacklisting the provided refresh token.\n\n---\n\n## Endpoint\n\n```\nPOST {{base_url}}/auth/logout/\n\n ```\n\n---\n\n## Authentication\n\n- **Required:** Yes — the request must be authenticated (send a valid `access` token) because `permission_classes = [IsAuthenticated]`.\n    \n- Provide the access token in the header:\n    \n\n```\nAuthorization: Bearer <access-token>\n\n ```\n\n---\n\n## Request headers\n\n| Header | Required |\n| --- | --- |\n| `Content-Type: application/json` | ✅ |\n| `Authorization: Bearer` | ✅ |\n\n---\n\n## Request body (JSON)\n\n```\n{\n  \"refresh\": \"<refresh-token>\"\n}\n\n ```\n\n- `refresh` — the refresh token to blacklist. This is required by the view’s input serializer.\n    \n\n---\n\n## What this does (behavior)\n\n1. Validates the incoming `refresh` field.\n    \n2. Wraps the string into a `RefreshToken` (from `rest_framework_simplejwt.tokens`) and calls `token.blacklist()`.\n    \n3. On success, the refresh token is added to the blacklist (so it cannot be used again).\n    \n4. Returns `205 Reset Content` to indicate the client should remove stored credentials.\n    \n\n---\n\n## Success response\n\n**Status:** `205 Reset Content`  \n**Body (example):**\n\n```\n{\n  \"message\": \"User logged out successfully\"\n}\n\n ```\n\n**Client action:** After receiving success, the client **must**:\n\n- Delete local copies of `access` and `refresh` tokens (local storage / cookies).\n    \n- Remove any session-specific state (UI logout, redirects).\n    \n\n---\n\n## Error responses\n\n| Status | Condition | Example body |\n| --- | --- | --- |\n| `400 Bad Request` | Missing or invalid `refresh` field (serializer validation) | `{\"refresh\":[\"This field is required.\"]}` |\n| `400 Bad Request` | Provided refresh token is invalid, malformed, expired, or already blacklisted (SimpleJWT `TokenError`) | `{\"detail\":\"Invalid refresh token for alice: Token is invalid or expired\"}` |\n| `401 Unauthorized` | No or invalid access token in `Authorization` header (request not authenticated) | `{\"detail\":\"Authentication credentials were not provided.\"}` |\n| `500 Internal Server Error` | Unexpected server error | `{\"detail\":\"Something went wrong, please try again later.\"}` |"
+					},
+					"response": []
+				},
+				{
+					"name": "List Users (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 or 403', () => pm.expect([200,403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"users",
+								""
+							]
+						},
+						"description": "List users (UsersListView). Requires admin privileges."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "user_email",
+			"value": "test@example.com"
+		},
+		{
+			"key": "user_password",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		}
+	]
+}

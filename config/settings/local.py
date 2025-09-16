@@ -1,6 +1,5 @@
 from .base import *
 
-
 DEBUG = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
@@ -125,3 +124,16 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'DRF Blog',
+    'DESCRIPTION': 'Django REST Blog API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_DIST': 'SIDECAR', 
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+
+}

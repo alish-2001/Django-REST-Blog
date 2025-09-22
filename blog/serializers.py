@@ -33,6 +33,7 @@ class CommentInputSerializer(serializers.Serializer):
     text = serializers.CharField(max_length=2000)
 
 class CategoryOutputSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=200)
     post = serializers.HyperlinkedRelatedField(view_name='post-detail', read_only=True)
     posts_number = serializers.IntegerField(default=0)

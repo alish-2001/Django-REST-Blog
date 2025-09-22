@@ -207,6 +207,7 @@ class LikeCreateView(APIView):
 class CategoryListView(APIView):
 
     class CategoryOutputSerializer(serializers.Serializer):
+        id = serializers.IntegerField(read_only=True)
         name = serializers.CharField(max_length=200)
         post = serializers.HyperlinkedRelatedField(view_name='post-detail', read_only=True)
         posts_number = serializers.IntegerField(default=0)
@@ -220,6 +221,7 @@ class CategoryListView(APIView):
 class CategoryDetailView(APIView):
 
     class CategoryOutputSerializer(serializers.Serializer):
+        id = serializers.IntegerField(read_only=True)
         name = serializers.CharField(max_length=200)
         post = serializers.HyperlinkedRelatedField(view_name='post-detail', read_only=True)
         posts_number = serializers.IntegerField(default=0)

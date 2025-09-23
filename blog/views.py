@@ -1,8 +1,8 @@
 from rest_framework import status
+from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
-from rest_framework import serializers
 
 from .models import Category
 from .permissions import IsPostAuthor
@@ -34,9 +34,9 @@ class PostListView(APIView):
 class PostCreateView(APIView):
 
     class PostInputSerializer(serializers.Serializer):
-        category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
-        title = serializers.CharField(max_length=100)
-        body = serializers.CharField(max_length=2000)   
+        category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=True)
+        title = serializers.CharField(max_length=100, required=True)
+        body = serializers.CharField(max_length=2000, required=True)   
         cover_image = serializers.ImageField(allow_null=True, required=False,)
 
     class PostOutputSerializer(serializers.Serializer):
@@ -87,9 +87,9 @@ class PostDetailView(APIView):
 class PostUpdateView(APIView):
 
     class PostInputSerializer(serializers.Serializer):
-        category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
-        title = serializers.CharField(max_length=100)
-        body = serializers.CharField(max_length=2000)   
+        category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=True)
+        title = serializers.CharField(max_length=100, required=True)
+        body = serializers.CharField(max_length=2000, required=True)   
         cover_image = serializers.ImageField(allow_null=True, required=False,)
 
     class PostOutputSerializer(serializers.Serializer):
@@ -122,10 +122,10 @@ class PostUpdateView(APIView):
     def patch(self, request, pk):
         post = get_post_object(pk=pk)
         self.check_object_permissions(request=request, obj=post)
-        serializer = PostInputSerializer(post, data=request.data, partial=True)
+        serializer = self.PostInputSerializer(post, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         post = post_update(post=post, data=serializer.validated_data, user=request.user)
-        output = PostOutputSerializer(post, context={"request": request})
+        output = self.PostOutputSerializer(post, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
 class PostDeleteView(APIView):
@@ -160,8 +160,8 @@ class CommentListView(APIView):
 class CommentCreateView(APIView):
 
     class CommentInputSerializer(serializers.Serializer):
-        title = serializers.CharField(max_length=200)
-        text = serializers.CharField(max_length=2000)
+        title = serializers.CharField(max_length=200, required=True)
+        text = serializers.CharField(max_length=2000, required=True)
 
     class CommentOutputSerializer(serializers.Serializer):
         post = serializers.HyperlinkedRelatedField(view_name='post-detail', read_only=True)

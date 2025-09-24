@@ -1,6 +1,6 @@
 Hi! This a message from {{site_name}},
 
-Your verification code is: {{code}}
+Your verification code is: {{otp}}
 
 This one-time password will be expired in {{expiry_minutes}} minutes.
 

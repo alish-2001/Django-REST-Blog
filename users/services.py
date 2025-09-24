@@ -1,17 +1,18 @@
 import random
 from datetime import timedelta
 from django.utils import timezone
-from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError, NotFound
+from django.conf import settings
 
 from .models import OTPVerification
 from .selectors import check_user_existence
-from .validations import validate_user_create
+from .validations import validate_request_otp, validate_user_create
 
 User = get_user_model()
 
@@ -41,7 +42,6 @@ def user_create(*, data:dict):
         raise DRFValidationError(e.messages)
 
     except Exception as e:
-        print(str(e))
         raise DRFValidationError('Registration Failed')
     
     return user
@@ -96,14 +96,26 @@ def token_create(user):
 
 def send_otp_email(*, user, otp_obj):
 
-    # context = {"code": otp_obj.code, "site_name":"Blog Team", "expiry_minutes":"5",}
-    # text_content = render_to_string("emails/verification_email.txt", context)
+    context = {"otp": otp_obj.code, "site_name":"Negaresh Blog", "expiry_minutes":"5",}
+    text_content = render_to_string("emails/verification_email.txt", context)
+    html_content = render_to_string("emails/verification_email.html", context)
 
-    # send_mail(
-    #     "Verify Your Account",
-    #     text_content,
-    #     None,
-    #     [user.email],
+    try:
+        msg = EmailMultiAlternatives(
+        "Verify your account",
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+    )
 
-    # )
-    return None
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+    except:
+        raise DRFValidationError("Sending OTP Faild")
+
+def request_otp(email):
+    
+    user = validate_request_otp(email)
+    otp = otp_create(user=user)
+    return otp

@@ -52,3 +52,6 @@ class UserLogoutInputSerializer(serializers.Serializer):
 class UserVerifyAccountInputSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=5, write_only=True, required=True)
     email = serializers.EmailField(required=True, write_only=True, max_length=60)
+
+class UserRequestOTPInputSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True, write_only=True, max_length=60)

@@ -134,5 +134,16 @@ def validate_otp_new_anonymous_user(*, code:str, email):
         
     return user
 
+def validate_request_otp(email:str):
 
+    email = BaseUserManager.normalize_email(email=email.strip())
 
+    try:
+        user = get_user_object_by_email(email=email)
+    except DRFNotFound:
+        raise DRFNotFound("User Is NOT Registered")
+    
+    if user.is_verified:
+        raise DRFValidationError("Account is Already Verified")
+
+    return user

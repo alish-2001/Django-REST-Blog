@@ -12,6 +12,7 @@ from .serializers import (
     UserLoginInputSerializer,
     UserLoginOutputSerializer,
     UserProfileOutputSerializer,
+    UserRequestOTPInputSerializer,
     UsersListSerializer,
     UserLogoutInputSerializer,
     UserVerifyAccountInputSerializer,
@@ -37,6 +38,29 @@ user_create_schema = extend_schema(
         400: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Validation error")
     },
 )
+
+# ---------------------------
+# Request OTP 
+# POST /request-otp/
+# ---------------------------
+user_request_otp_schema = extend_schema(
+    summary="Create An OTP",
+    description=(
+        "Creates an OTP. The request must include `email`.\n\n"
+        "The input email must be a valid email address for a registered user in database which is not verified.\n\n"
+    ),
+    tags=["Users"],
+    request=UserRequestOTPInputSerializer,
+    responses={
+        201: OpenApiResponse(
+            response=UserCreateOutputSerializer,
+            description="OTP created successfully"
+        ),
+        400: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Validation error")
+    },
+)
+
+
 
 # ---------------------------
 # Login

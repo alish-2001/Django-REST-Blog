@@ -1,6 +1,6 @@
 from rest_framework.urls import path
 
-from .views import UserCreateView, UserLoginView, UserProfileView, UserTokenRefreshView, UserTokenVerifyView, UsersListView, UserLogoutView, UserVerifyAccount
+from .views import UserCreateView, UserLoginView, UserProfileView, UserRequestOTP, UserTokenRefreshView, UserTokenVerifyView, UsersListView, UserLogoutView, UserVerifyAccount
 
 urlpatterns = [
 
@@ -10,8 +10,8 @@ urlpatterns = [
     path('users/', UsersListView.as_view(), name='users-list'),
     path('logout/', UserLogoutView.as_view(), name='user-logout'),
     path('verify-account/', UserVerifyAccount.as_view(), name='user-verify-account'),
+    path('request-otp/', UserRequestOTP.as_view(), name='request-otp'),
     path('token/refresh/', UserTokenRefreshView.as_view(), name='token-refresh'),
     path('token/verify/', UserTokenVerifyView.as_view(), name='token-verify'),
-
 
 ]

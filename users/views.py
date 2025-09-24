@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
 from rest_framework_simplejwt.views import TokenRefreshView,TokenVerifyView
 
 from .selectors import get_user_object_by_pk, get_users_queryset
-from .services import verify_user_by_otp, user_create, token_create
+from .services import request_otp, verify_user_by_otp, user_create, token_create, otp_create
 from .validations import validate_user_authentication, validate_otp_new_anonymous_user
-from .schemas import user_create_schema,user_login_schema,user_profile_schema,users_list_schema,user_logout_schema,user_verify_account_schema,token_refresh_schema,token_verify_schema
+from .schemas import user_create_schema,user_login_schema,user_profile_schema,users_list_schema,user_logout_schema,user_verify_account_schema,token_refresh_schema,token_verify_schema,user_request_otp_schema
 
 # Create your views here.
 
@@ -168,3 +168,19 @@ class UserTokenRefreshView(TokenRefreshView):
 @token_verify_schema
 class UserTokenVerifyView(TokenVerifyView):
     pass 
+
+class UserRequestOTP(APIView):
+
+    class UserRequestOTPInputSerializer(serializers.Serializer):
+        email = serializers.EmailField(required=True, write_only=True, max_length=60)
+
+    @user_request_otp_schema
+    def post(self, request):
+
+        serializer = self.UserRequestOTPInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)   
+        
+        request_otp(email=serializer.validated_data['email'])
+
+        return Response({'message':'OTP created successfuly and sent to the email'}, status=status.HTTP_201_CREATED)
+    

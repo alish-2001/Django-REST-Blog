@@ -1,0 +1,32 @@
+{
+    "platform": "django",
+    
+    "disks":[
+        {
+            "name": "database",
+            "mountTo": "database"
+        },
+        {
+            "name": "media",
+            "mountTo": "media"
+        },
+        {
+            "name": "staticfiles",
+            "mountTo": "staticfiles"
+        }
+
+    ],
+
+    "django": {
+      "timezone": "Asia/Tehran"
+    },
+
+    "app": "negaresh",
+
+    "port": 80,
+
+    "build": {
+        "location":"iran"
+    }
+    
+}

@@ -24,11 +24,11 @@ urlpatterns = [
     
     path('admin/', admin.site.urls),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
-    path('',include('debug_toolbar.urls')),
     path('auth/', include('users.urls')),
     path('blog/',include('blog.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # path('',include('debug_toolbar.urls')),
     
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

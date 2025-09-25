@@ -1,8 +1,10 @@
 from .base import *
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
+
 DEBUG = True
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
+DJANGO_ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 INSTALLED_APPS +=[
 
@@ -10,18 +12,22 @@ INSTALLED_APPS +=[
 
 ]
 
+MIDDLEWARE += [
+
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 STATIC_URL = '/static/'
 
 #static files conf
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 #media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 #ckeidtor5
 customColorPalette = [
@@ -125,7 +131,6 @@ INTERNAL_IPS = [
     # ...
 ]
 
-
 SPECTACULAR_SETTINGS = {
     'TITLE': 'DRF Blog',
     'DESCRIPTION': 'Django REST Blog API',
@@ -137,3 +142,11 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 
 }
+
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND")
+EMAIL_HOST = env("DJANGO_EMAIL_HOST")
+EMAIL_PORT = env.int("DJANGO_EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("DJANGO_EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("DJANGO_EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL")
+EMAIL_USE_TLS = True

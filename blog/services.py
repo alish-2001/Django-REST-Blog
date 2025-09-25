@@ -1,3 +1,5 @@
+from django.db.utils import IntegrityError
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from blog.models import Like
@@ -33,5 +35,9 @@ def comment_create(*, post:Post, data:dict, user:User):
 
 def like_create(*, post:Post, user:User):
     
-    like = Like.objects.create(post=post, user=user)
+    try: 
+        like = Like.objects.create(post=post, user=user)
+    except (IntegrityError,DjangoValidationError):
+        raise DRFValidationError("You Have Already Liked This Post")
+    
     return like

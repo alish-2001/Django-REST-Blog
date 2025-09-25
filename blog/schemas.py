@@ -105,7 +105,7 @@ post_delete_schema = extend_schema(
 comment_list_schema = extend_schema(
     summary="List comments for a post",
     description="Return all comments for the post identified by `id`.",
-    tags=["Comments"],
+    tags=["Posts"],
     parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT)],
     responses={200: OpenApiResponse(response=CommentOutputSerializer(many=True), description="List of comments")}
 )
@@ -113,7 +113,7 @@ comment_list_schema = extend_schema(
 comment_create_schema = extend_schema(
     summary="Create comment",
     description="Create a comment on the post identified by `id`. Authenticated users only.",
-    tags=["Comments"],
+    tags=["Posts"],
     parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT)],
     request=CommentInputSerializer,
     responses={
@@ -128,7 +128,7 @@ comment_create_schema = extend_schema(
 comment_delete_schema = extend_schema(
     summary="Delete comment",
     description="Delete a comment. Admin-only (current implementation).",
-    tags=["Comments"],
+    tags=["Posts"],
     parameters=[
         OpenApiParameter(name="post_pk", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT),
         OpenApiParameter(name="comment_pk", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT),
@@ -199,7 +199,7 @@ like_create_schema = extend_schema(
     summary="Like a post",
     description="Create a like for the post identified by `id`. Requires authentication. "
                 "No request body is required — the authenticated user will be recorded as the liker.",
-    tags=["Like"],
+    tags=["Posts"],
     parameters=[
         OpenApiParameter(
             name="id",

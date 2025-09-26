@@ -2,6 +2,8 @@ from .base import *
 import dj_database_url
 from corsheaders.defaults import default_headers
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.production'))
+
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 DEBUG = env("DJANGO_DEBUG")
@@ -11,6 +13,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
+
+CORS_ALLOWED_HEADERS = env.list("DJANGO_CORS_ALLOWED_HEADERS")
 
 INSTALLED_APPS += [
     "corsheaders",

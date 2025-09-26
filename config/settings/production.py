@@ -6,7 +6,7 @@ from corsheaders.defaults import default_headers
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-DEBUG = env("DJANGO_DEBUG")
+DEBUG = False
 
 SESSION_COOKIE_SECURE = True
 

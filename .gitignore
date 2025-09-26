@@ -10,8 +10,6 @@ __pycache__/
 env/
 venv/
 .venv/
-*/migrations/
-!*/migrations/__init__.py
 
 # Django
 *.log

@@ -2,7 +2,7 @@ from .base import *
 import dj_database_url
 from corsheaders.defaults import default_headers
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env.production'))
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 DEBUG = env("DJANGO_DEBUG")
 

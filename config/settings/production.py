@@ -1,6 +1,7 @@
 from .base import *
 import dj_database_url
 from corsheaders.defaults import default_headers
+import os
 
 # environ.Env.read_env(os.path.join(BASE_DIR, '.env.production'))
 
@@ -31,8 +32,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-DATABASES = {   
-    'default': dj_database_url.config(default=env("DJANGO_PG_DATABASE_URL"))
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get('POSTGRES_ENGINE'),
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    }
 }
 
 CORS_ALLOWED_ORIGINS = env.list("DJANGO_CORS_ALLOWED_ORIGINS")
@@ -55,7 +63,7 @@ STATIC_URL = '/static/'
 
 #static files conf
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 #media files
 MEDIA_URL = '/media/'
